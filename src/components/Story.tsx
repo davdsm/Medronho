@@ -18,6 +18,8 @@ type Feature = {
   inset?: string;
   insetAlt?: string;
   flip?: boolean;
+  /** Where the 3D berry docks relative to the photo. */
+  dock?: "left" | "right" | "bottom-right";
 };
 
 const features: Feature[] = [
@@ -27,6 +29,7 @@ const features: Feature[] = [
     copy: "No medronheiro isto é normal. Enquanto um fruto está a ficar vermelho, a árvore já está a florir para o ano a seguir.",
     image: "/photos/branch.jpg",
     alt: "Ramo de medronheiro com flor e fruto no mesmo ramo.",
+    dock: "right",
   },
   {
     eyebrow: "O tempo",
@@ -35,6 +38,7 @@ const features: Feature[] = [
     image: "/photos/hillside.jpg",
     alt: "Encosta do Barrocal no outono, com medronheiros a vermelhar.",
     flip: true,
+    dock: "right",
   },
   {
     eyebrow: "A apanha",
@@ -44,6 +48,7 @@ const features: Feature[] = [
     alt: "Mãos a escolher medronhos maduros pelo toque.",
     inset: "/photos/basket.jpg",
     insetAlt: "Cesto com medronhos acabados de apanhar.",
+    dock: "bottom-right",
   },
 ];
 
@@ -83,9 +88,13 @@ function clientToScene(clientX: number, clientY: number) {
   };
 }
 
-function dockPoint(el: HTMLElement, side: "left" | "right" | "center") {
+function dockPoint(el: HTMLElement, side: "left" | "right" | "center" | "bottom-right") {
   const r = el.getBoundingClientRect();
   const insetX = Math.min(r.width, r.height) * 0.1;
+  const insetY = Math.min(r.width, r.height) * 0.12;
+  if (side === "bottom-right") {
+    return clientToScene(r.right - insetX, r.bottom - insetY);
+  }
   const x =
     side === "left"
       ? r.left + insetX
@@ -96,7 +105,7 @@ function dockPoint(el: HTMLElement, side: "left" | "right" | "center") {
   return clientToScene(x, y);
 }
 
-/** Keep the berry hugged to the image lateral of whichever feature is in view. */
+/** Keep the berry hugged to the image of whichever feature is in view. */
 function strollBerry(progress = 0) {
   const passeio = document.getElementById("passeio");
   const docks = Array.from(document.querySelectorAll<HTMLElement>("[data-berry-dock]"));
@@ -122,20 +131,24 @@ function strollBerry(progress = 0) {
   let dockS = 0;
 
   docks.forEach((el) => {
-    const block = el.closest(".feature-block");
-    const flip = block?.classList.contains("feature-block--flip");
+    const attr = el.dataset.berryDock || "left";
     const r = el.getBoundingClientRect();
-    const midY = r.top + r.height * 0.42;
+    const midY =
+      attr === "bottom-right" ? r.top + r.height * 0.72 : r.top + r.height * 0.42;
     const visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
     const visibility = gsap.utils.clamp(0, 1, visible / Math.max(1, Math.min(r.height, vh * 0.85)));
     const proximity = 1 - gsap.utils.clamp(0, 1, Math.abs(midY - vh * 0.48) / (vh * 0.9));
     const weight = Math.pow(Math.max(0.0001, visibility * 0.35 + proximity * 0.65), 1.25);
-    const side = phone ? "center" : flip ? "right" : "left";
+    const side = phone
+      ? attr === "bottom-right"
+        ? "bottom-right"
+        : "center"
+      : (attr as "left" | "right" | "bottom-right");
     const point = dockPoint(el, side);
     total += weight;
     dockX += point.x * weight;
     dockY += point.y * weight;
-    dockS += (phone ? 0.46 : 0.5) * weight;
+    dockS += (phone ? 0.46 : attr === "bottom-right" ? 0.44 : 0.5) * weight;
   });
 
   if (total > 0.0001) {
@@ -190,7 +203,7 @@ function FeatureBlock({ feature, index }: { feature: Feature; index: number }) {
       <FadeUp className="feature-block__visual" delay={0.1}>
         <div
           className={`feature-block__stage ${feature.inset ? "feature-block__stage--layered" : ""}`}
-          data-berry-dock=""
+          data-berry-dock={feature.dock ?? (flip ? "right" : "left")}
         >
           <div className="feature-block__panel" aria-hidden="true" />
           <ParallaxMedia
@@ -287,6 +300,7 @@ export function Story() {
       const cta = ctaRef.current;
 
       tl = gsap.timeline({
+        delay: 0,
         defaults: { ease: "power3.out" },
         onComplete: () => {
           strollBerry(0);

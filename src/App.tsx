@@ -21,6 +21,7 @@ import { ArticlePage } from "./pages/ArticlePage";
 import { ConsortiumPage } from "./pages/ConsortiumPage";
 import { HomePage } from "./pages/HomePage";
 import { JournalPage } from "./pages/JournalPage";
+import { PrivacyPage, TermsPage } from "./pages/LegalPages";
 import { NotFound } from "./pages/NotFound";
 
 function LegacyArticle() {
@@ -126,6 +127,8 @@ function Shell() {
           <Route path="/consorcio" element={<ConsortiumPage />} />
           <Route path="/noticias" element={<JournalPage />} />
           <Route path="/noticias/:slug" element={<ArticlePage />} />
+          <Route path="/privacidade" element={<PrivacyPage />} />
+          <Route path="/termos" element={<TermsPage />} />
           <Route path="/jornal" element={<Navigate to="/noticias" replace />} />
           <Route path="/jornal/:slug" element={<LegacyArticle />} />
           <Route path="*" element={<NotFound />} />

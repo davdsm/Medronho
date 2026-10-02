@@ -101,17 +101,12 @@ function berrySvg({ id, ripe, w = 240, h = 280, lean = 0 }: BerryOpts) {
       <stop offset="45%" stop-color="#fff6ea" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#fff6ea" stop-opacity="0"/>
     </radialGradient>
-    <filter id="${id}-soft" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#1a0806" flood-opacity="0.28"/>
-    </filter>
     <clipPath id="${id}-clip">
       <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>
     </clipPath>
   </defs>
 
-  <g filter="url(#${id}-soft)">
-    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}-body)"/>
-  </g>
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}-body)"/>
 
   <g clip-path="url(#${id}-clip)">
     <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}-body)"/>

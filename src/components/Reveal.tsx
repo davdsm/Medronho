@@ -75,6 +75,10 @@ export function FadeUp({
   );
 }
 
+function holdingPage() {
+  return document.documentElement.dataset.ptHold === "true";
+}
+
 /** Observe [data-arrive] and mark .is-in. Also reveals split lines under html[data-opened]. */
 export function useArrive() {
   const root = useRef<HTMLElement | null>(null);
@@ -84,9 +88,21 @@ export function useArrive() {
     const scope = root.current ?? document;
 
     const mark = (node: Element) => {
+      if (holdingPage()) return;
       node.classList.add("is-in");
       node.querySelectorAll(".split-line").forEach((line) => {
         line.classList.add("is-in");
+      });
+    };
+
+    const resetHeld = () => {
+      scope.querySelectorAll("[data-arrive].is-in").forEach((node) => {
+        if (node instanceof HTMLElement && node.closest("#conteudo")) {
+          node.classList.remove("is-in");
+          node.querySelectorAll(".split-line.is-in").forEach((line) => {
+            line.classList.remove("is-in");
+          });
+        }
       });
     };
 
@@ -99,6 +115,7 @@ export function useArrive() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (holdingPage()) return;
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           mark(entry.target);
@@ -109,6 +126,10 @@ export function useArrive() {
     );
 
     const watch = () => {
+      if (holdingPage()) {
+        resetHeld();
+        return;
+      }
       scope.querySelectorAll("[data-arrive]:not(.is-in)").forEach((node) => {
         observer.observe(node);
       });
@@ -126,18 +147,30 @@ export function useArrive() {
       watch();
       window.setTimeout(() => {
         import("../gsap").then(({ ScrollTrigger }) => ScrollTrigger.refresh());
-      }, 80);
+      }, 40);
     };
 
     const onPageReveal = () => {
-      window.setTimeout(() => {
-        document.querySelectorAll("[data-arrive]:not(.is-in)").forEach((node) => {
-          const rect = node.getBoundingClientRect();
-          if (rect.top < window.innerHeight * 0.92) mark(node);
+      // Keep hold while we reset to the hidden start pose (no flash).
+      document.documentElement.dataset.ptHold = "true";
+      document.querySelectorAll("#conteudo .fade-up, #conteudo .split-line").forEach((node) => {
+        node.classList.remove("is-in");
+      });
+
+      requestAnimationFrame(() => {
+        delete document.documentElement.dataset.ptHold;
+        requestAnimationFrame(() => {
+          document.querySelectorAll("#conteudo [data-arrive]").forEach((node) => {
+            const rect = node.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+              mark(node);
+            } else {
+              observer.observe(node);
+            }
+          });
+          import("../gsap").then(({ ScrollTrigger }) => ScrollTrigger.refresh());
         });
-        watch();
-        import("../gsap").then(({ ScrollTrigger }) => ScrollTrigger.refresh());
-      }, 160);
+      });
     };
 
     if (document.documentElement.dataset.opened) onOpened();

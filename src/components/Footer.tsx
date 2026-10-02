@@ -20,10 +20,23 @@ export function Footer() {
           <Link to="/noticias" className="hover:text-butter">
             Notícias
           </Link>
+          <Link to="/privacidade" className="hover:text-butter">
+            Privacidade
+          </Link>
+          <Link to="/termos" className="hover:text-butter">
+            Termos
+          </Link>
         </nav>
       </div>
       <p className="mx-auto max-w-[1400px] px-5 pt-10 text-sm text-foam-soft md:px-10">
-        2026 UNEDO4ALL
+        2026 UNEDO4ALL ·{" "}
+        <Link to="/privacidade" className="underline decoration-foam/30 underline-offset-4 hover:text-butter">
+          Política de Privacidade
+        </Link>
+        {" · "}
+        <Link to="/termos" className="underline decoration-foam/30 underline-offset-4 hover:text-butter">
+          Termos e Condições
+        </Link>
       </p>
       <div className="mt-6 overflow-hidden leading-none" aria-hidden="true">
         <p className="translate-y-[0.12em] font-display text-[14vw] leading-[0.75] tracking-[-0.04em] text-butter md:text-[12vw]">

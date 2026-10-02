@@ -92,6 +92,8 @@ export const PageTransition = forwardRef<PageTransitionHandle>(function PageTran
 
       busy.current = true;
       window.__medronhoPTActive = true;
+      document.documentElement.dataset.ptHold = "true";
+      delete document.documentElement.dataset.pageIn;
       shell.style.pointerEvents = "auto";
       word.textContent = phrases[Math.floor(Math.random() * phrases.length)];
 
@@ -144,12 +146,10 @@ export const PageTransition = forwardRef<PageTransitionHandle>(function PageTran
           ],
           { duration: 320, easing: "ease", fill: "forwards" },
         );
-        window.__medronhoPTActive = false;
-        window.dispatchEvent(new CustomEvent("medronho:pt-reveal"));
-        document.documentElement.dataset.pageIn = "true";
         window.setTimeout(() => {
-          delete document.documentElement.dataset.pageIn;
-        }, 900);
+          window.__medronhoPTActive = false;
+          window.dispatchEvent(new CustomEvent("medronho:pt-reveal"));
+        }, 780);
       }, 1480);
 
       window.setTimeout(() => {

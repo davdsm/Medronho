@@ -31,9 +31,9 @@ export function Nav() {
         className="fade-up pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-3"
         data-arrive=""
         data-arrive-hero=""
-        style={{ transitionDelay: "0.35s" }}
+        style={{ transitionDelay: "0s" }}
       >
-        <nav className="pointer-events-auto flex h-14 max-w-full items-center gap-1 rounded-full border border-ink/15 bg-foam px-1.5 text-ink shadow-[0_10px_30px_oklch(0.22_0.035_30/0.14)]">
+        <nav className="pointer-events-auto flex h-14 max-w-full items-center gap-1 rounded-full border border-ink/15 bg-foam px-1.5 text-ink">
           <Link
             to="/"
             className="rounded-full px-3 font-display text-[15px] tracking-[-0.03em]"

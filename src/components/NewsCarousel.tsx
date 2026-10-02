@@ -24,6 +24,10 @@ function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
   );
 }
 
+function easeOutQuint(t: number) {
+  return 1 - (1 - t) ** 5;
+}
+
 export function NewsCarousel() {
   const scroller = useRef<HTMLUListElement>(null);
   const drag = useRef({
@@ -36,18 +40,27 @@ export function NewsCarousel() {
     moved: false,
     pointerId: -1,
   });
+  const glide = useRef({
+    active: false,
+    from: 0,
+    to: 0,
+    start: 0,
+    duration: 780,
+  });
   const motion = useRef<{
     target: number;
     raf: number;
     ensureLoop: () => void;
     clamp: (value: number) => number;
     step: () => number;
+    go: (direction: -1 | 1) => void;
   }>({
     target: 0,
     raf: 0,
     ensureLoop: () => {},
     clamp: (value: number) => value,
     step: () => 0,
+    go: () => {},
   });
   const [grabbing, setGrabbing] = useState(false);
   const [atStart, setAtStart] = useState(true);
@@ -67,7 +80,7 @@ export function NewsCarousel() {
 
     const syncEdges = () => {
       const max = maxScroll();
-      const left = motion.current.target;
+      const left = glide.current.active ? glide.current.to : motion.current.target;
       setAtStart(left <= 2);
       setAtEnd(left >= max - 2);
     };
@@ -82,17 +95,41 @@ export function NewsCarousel() {
     const tick = () => {
       const state = drag.current;
       const current = el.scrollLeft;
+
+      if (glide.current.active) {
+        const g = glide.current;
+        const raw = reduce ? 1 : (performance.now() - g.start) / g.duration;
+        const t = Math.min(1, raw);
+        const eased = easeOutQuint(t);
+        const next = g.from + (g.to - g.from) * eased;
+        el.scrollLeft = next;
+        motion.current.target = next;
+        if (t >= 1) {
+          el.scrollLeft = g.to;
+          motion.current.target = g.to;
+          g.active = false;
+          state.velocity = 0;
+          motion.current.raf = 0;
+          el.classList.remove("is-dragging");
+          syncEdges();
+          return;
+        }
+        syncEdges();
+        motion.current.raf = requestAnimationFrame(tick);
+        return;
+      }
+
       const target = motion.current.target;
 
       if (state.active) {
-        el.scrollLeft = current + (target - current) * (reduce ? 1 : 0.42);
+        el.scrollLeft = current + (target - current) * (reduce ? 1 : 0.5);
         syncEdges();
         motion.current.raf = requestAnimationFrame(tick);
         return;
       }
 
       const gap = target - current;
-      if (Math.abs(gap) < 0.35 && Math.abs(state.velocity) < 0.02) {
+      if (Math.abs(gap) < 0.4 && Math.abs(state.velocity) < 0.02) {
         el.scrollLeft = target;
         state.velocity = 0;
         motion.current.raf = 0;
@@ -101,9 +138,10 @@ export function NewsCarousel() {
         return;
       }
 
-      state.velocity *= 0.94;
+      // Softer coast after drag / wheel.
+      state.velocity *= 0.955;
       motion.current.target = clamp(target + state.velocity * 16);
-      el.scrollLeft = current + (motion.current.target - current) * 0.18;
+      el.scrollLeft = current + (motion.current.target - current) * 0.14;
       syncEdges();
       motion.current.raf = requestAnimationFrame(tick);
     };
@@ -121,8 +159,32 @@ export function NewsCarousel() {
       return card.getBoundingClientRect().width + gap;
     };
 
+    motion.current.go = (direction: -1 | 1) => {
+      drag.current.velocity = 0;
+      drag.current.active = false;
+      const from = el.scrollLeft;
+      const base = glide.current.active ? glide.current.to : from;
+      const to = clamp(base + direction * motion.current.step());
+      if (Math.abs(to - from) < 0.5) {
+        syncEdges();
+        return;
+      }
+      el.classList.add("is-dragging");
+      glide.current = {
+        active: true,
+        from,
+        to,
+        start: performance.now(),
+        duration: reduce ? 1 : 820,
+      };
+      motion.current.target = to;
+      ensureLoop();
+      syncEdges();
+    };
+
     const onPointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
+      glide.current.active = false;
       const now = performance.now();
       drag.current = {
         active: true,
@@ -150,7 +212,7 @@ export function NewsCarousel() {
       if (Math.abs(delta) > 3) drag.current.moved = true;
 
       const instant = (-step / dt) * 16;
-      drag.current.velocity = drag.current.velocity * 0.65 + instant * 0.35;
+      drag.current.velocity = drag.current.velocity * 0.7 + instant * 0.3;
       drag.current.lastX = event.clientX;
       drag.current.lastT = now;
       motion.current.target = clamp(drag.current.startLeft - delta);
@@ -162,8 +224,8 @@ export function NewsCarousel() {
       if (event.pointerId !== drag.current.pointerId && event.type !== "pointercancel") return;
       drag.current.active = false;
       setGrabbing(false);
-      if (Math.abs(drag.current.velocity) < 0.4) drag.current.velocity = 0;
-      else drag.current.velocity = Math.max(-48, Math.min(48, drag.current.velocity));
+      if (Math.abs(drag.current.velocity) < 0.35) drag.current.velocity = 0;
+      else drag.current.velocity = Math.max(-42, Math.min(42, drag.current.velocity));
       try {
         el.releasePointerCapture(event.pointerId);
       } catch {
@@ -183,6 +245,7 @@ export function NewsCarousel() {
     const onWheel = (event: WheelEvent) => {
       if (Math.abs(event.deltaX) < Math.abs(event.deltaY) && Math.abs(event.deltaX) < 2) return;
       event.preventDefault();
+      glide.current.active = false;
       drag.current.velocity = 0;
       motion.current.target = clamp(motion.current.target + event.deltaX + event.deltaY);
       el.classList.add("is-dragging");
@@ -215,18 +278,6 @@ export function NewsCarousel() {
     };
   }, []);
 
-  const go = (direction: -1 | 1) => {
-    const el = scroller.current;
-    if (!el) return;
-    drag.current.velocity = 0;
-    drag.current.active = false;
-    el.classList.add("is-dragging");
-    motion.current.target = motion.current.clamp(
-      motion.current.target + direction * motion.current.step(),
-    );
-    motion.current.ensureLoop();
-  };
-
   return (
     <div className="news-bleed">
       <div className="news-edge mb-5 flex items-center justify-between gap-4">
@@ -237,7 +288,7 @@ export function NewsCarousel() {
             className="news-arrow"
             aria-label="Notícia anterior"
             disabled={atStart}
-            onClick={() => go(-1)}
+            onClick={() => motion.current.go(-1)}
           >
             <ArrowIcon direction="prev" />
           </button>
@@ -246,7 +297,7 @@ export function NewsCarousel() {
             className="news-arrow"
             aria-label="Notícia seguinte"
             disabled={atEnd}
-            onClick={() => go(1)}
+            onClick={() => motion.current.go(1)}
           >
             <ArrowIcon direction="next" />
           </button>
