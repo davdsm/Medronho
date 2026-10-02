@@ -33,28 +33,25 @@ export function Nav() {
         data-arrive-hero=""
         style={{ transitionDelay: "0s" }}
       >
-        <nav className="pointer-events-auto flex h-14 max-w-full items-center gap-1 rounded-full border border-ink/15 bg-foam px-1.5 text-ink">
+        <nav className="site-nav pointer-events-auto flex h-14 max-w-full items-center gap-0.5 rounded-full border border-ink/15 bg-foam px-1.5 text-ink">
           <Link
             to="/"
-            className="rounded-full px-3 font-display text-[15px] tracking-[-0.03em]"
+            className="site-nav__brand"
             onClick={() => setOpen(false)}
           >
             UNEDO4ALL
           </Link>
           <div className="hidden items-center min-[960px]:flex">
             {links.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="rounded-full px-3 py-2 text-[15px] font-medium hover:bg-ink hover:text-butter"
-              >
-                {link.label}
+              <Link key={link.to} to={link.to} className="site-nav__link">
+                <span className="site-nav__link-bg" aria-hidden="true" />
+                <span className="site-nav__link-label">{link.label}</span>
               </Link>
             ))}
           </div>
           <button
             type="button"
-            className="relative grid size-11 place-items-center rounded-full hover:bg-ink/5 min-[960px]:hidden"
+            className="site-nav__toggle relative grid size-11 place-items-center rounded-full min-[960px]:hidden"
             aria-expanded={open}
             aria-label={open ? "Fechar menu" : "Abrir menu"}
             onClick={() => setOpen((value) => !value)}
@@ -79,7 +76,7 @@ export function Nav() {
                 style={{ animationDelay: `${index * 70}ms` }}
                 onClick={() => setOpen(false)}
               >
-                {link.label}
+                <span className="menu-link__text">{link.label}</span>
               </Link>
             ))}
           </nav>

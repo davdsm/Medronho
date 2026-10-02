@@ -2,10 +2,29 @@ import { Link } from "react-router";
 import { posts } from "../data";
 import { ParallaxMedia } from "../components/Parallax";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
-import { usePage } from "../useReduced";
+import { breadcrumbJsonLd, organizationJsonLd, useSeo, websiteJsonLd } from "../seo";
 
 export function JournalPage() {
-  usePage("Notícias · Medronho", "Notícias das casas sobre a colheita, o doce e a caixa de quinta-feira.");
+  useSeo({
+    title: "Notícias",
+    description:
+      "Notícias do projeto UNEDO4ALL sobre a colheita, conservação e valorização do medronho no setor alimentar.",
+    path: "/noticias",
+    jsonLd: [
+      organizationJsonLd(),
+      websiteJsonLd(),
+      {
+        "@type": "CollectionPage",
+        name: "Notícias UNEDO4ALL",
+        description:
+          "Artigos e atualizações sobre o medronho, a colheita e o trabalho do consórcio.",
+      },
+      breadcrumbJsonLd([
+        { name: "Início", path: "/" },
+        { name: "Notícias", path: "/noticias" },
+      ]),
+    ],
+  });
   useArrive();
 
   const [featured, ...rest] = posts;

@@ -1,7 +1,7 @@
 import { partners } from "../data";
 import { PartnerLogos } from "../components/PartnerLogos";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
-import { usePage } from "../useReduced";
+import { breadcrumbJsonLd, organizationJsonLd, useSeo, websiteJsonLd } from "../seo";
 
 const facts = [
   { label: "Empresas", value: "9" },
@@ -16,10 +16,27 @@ const projectCopy = [
 ];
 
 export function ConsortiumPage() {
-  usePage(
-    "O consórcio · UNEDO4ALL",
-    "O projeto UNEDO4ALL estuda e desenvolve novos processos para conservação e valorização do medronho.",
-  );
+  useSeo({
+    title: "O consórcio",
+    description:
+      "O UNEDO4ALL reúne nove empresas para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar.",
+    path: "/consorcio",
+    jsonLd: [
+      organizationJsonLd(),
+      websiteJsonLd(),
+      {
+        "@type": "AboutPage",
+        name: "O consórcio UNEDO4ALL",
+        description:
+          "Consórcio de empresas portuguesas focado na conservação e valorização do medronho.",
+        url: "/consorcio",
+      },
+      breadcrumbJsonLd([
+        { name: "Início", path: "/" },
+        { name: "Consórcio", path: "/consorcio" },
+      ]),
+    ],
+  });
   useArrive();
 
   return (

@@ -2,7 +2,14 @@ import { Link, useParams } from "react-router";
 import { getPost, posts } from "../data";
 import { ParallaxMedia } from "../components/Parallax";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
-import { usePage } from "../useReduced";
+import {
+  breadcrumbJsonLd,
+  getSiteUrl,
+  organizationJsonLd,
+  parsePtDate,
+  useSeo,
+  websiteJsonLd,
+} from "../seo";
 import { NotFound } from "./NotFound";
 
 export function ArticlePage() {
@@ -10,17 +17,67 @@ export function ArticlePage() {
   const post = slug ? getPost(slug) : undefined;
   const index = posts.findIndex((item) => item.slug === slug);
   const next = index >= 0 ? posts[(index + 1) % posts.length] : undefined;
+  const path = post ? `/noticias/${post.slug}` : "/noticias";
+  const published = post ? parsePtDate(post.date) : undefined;
+  const origin = getSiteUrl();
 
-  usePage(
-    post ? `${post.title} · Medronho` : "Texto não encontrado · Medronho",
-    post?.excerpt,
+  useSeo(
+    post
+      ? {
+          title: post.title,
+          description: post.excerpt,
+          path,
+          type: "article",
+          publishedTime: published,
+          modifiedTime: published,
+          author: post.author,
+          section: "Notícias",
+          jsonLd: [
+            organizationJsonLd(origin),
+            websiteJsonLd(origin),
+            {
+              "@type": "NewsArticle",
+              headline: post.title,
+              description: post.excerpt,
+              image: [`${origin}${post.image}`],
+              datePublished: published,
+              dateModified: published,
+              author: {
+                "@type": "Person",
+                name: post.author,
+              },
+              publisher: { "@id": `${origin}/#organization` },
+              mainEntityOfPage: `${origin}${path}`,
+              articleSection: post.house,
+              inLanguage: "pt-PT",
+            },
+            breadcrumbJsonLd(
+              [
+                { name: "Início", path: "/" },
+                { name: "Notícias", path: "/noticias" },
+                { name: post.title, path },
+              ],
+              origin,
+            ),
+          ],
+        }
+      : {
+          title: "Texto não encontrado",
+          description: "Este artigo não existe no website UNEDO4ALL.",
+          path,
+          noindex: true,
+        },
   );
   useArrive();
 
   if (!post) return <NotFound />;
 
   return (
-    <article className="bg-butter px-5 pt-28 pb-24 text-ink md:px-10 md:pt-36 md:pb-32">
+    <article
+      className="bg-butter px-5 pt-28 pb-24 text-ink md:px-10 md:pt-36 md:pb-32"
+      itemScope
+      itemType="https://schema.org/NewsArticle"
+    >
       <div className="mx-auto max-w-[820px]">
         <FadeUp as="p" className="text-sm text-ink-soft" hero>
           <Link to="/noticias" className="underline decoration-ink/30 underline-offset-4">
@@ -37,10 +94,12 @@ export function ArticlePage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-4 text-lg text-ink-soft" delay={0.18} hero>
-          {post.author}, {post.house}
+          <span itemProp="author">{post.author}</span>, {post.house}
         </FadeUp>
         <FadeUp as="p" className="mt-1 text-ink-soft" delay={0.24} hero>
-          {post.date}
+          <time dateTime={published} itemProp="datePublished">
+            {post.date}
+          </time>
         </FadeUp>
         <FadeUp className="mt-8" delay={0.1}>
           <ParallaxMedia
@@ -50,7 +109,7 @@ export function ArticlePage() {
             strength={14}
           />
         </FadeUp>
-        <div className="mt-10 grid max-w-[65ch] gap-6 text-lg leading-relaxed">
+        <div className="mt-10 grid max-w-[65ch] gap-6 text-lg leading-relaxed" itemProp="articleBody">
           {post.body.map((paragraph, i) => (
             <FadeUp as="p" key={paragraph.slice(0, 24)} delay={0.06 * i}>
               {paragraph}

@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
-import { usePage } from "../useReduced";
+import { breadcrumbJsonLd, useSeo } from "../seo";
 
 type Section = {
   title: string;
@@ -14,13 +14,31 @@ function LegalLayout({
   description,
   updated,
   sections,
+  path,
 }: {
   title: string;
   description: string;
   updated: string;
   sections: Section[];
+  path: string;
 }) {
-  usePage(`${title} · UNEDO4ALL`, description);
+  useSeo({
+    title,
+    description,
+    path,
+    jsonLd: [
+      {
+        "@type": "WebPage",
+        name: title,
+        description,
+        inLanguage: "pt-PT",
+      },
+      breadcrumbJsonLd([
+        { name: "Início", path: "/" },
+        { name: title, path },
+      ]),
+    ],
+  });
   useArrive();
 
   return (
@@ -80,6 +98,7 @@ export function PrivacyPage() {
       title="Política de Privacidade"
       description="Informação sobre o tratamento de dados pessoais no website UNEDO4ALL, nos termos do RGPD e da lei portuguesa."
       updated="3 de outubro de 2026"
+      path="/privacidade"
       sections={[
         {
           title: "1. Quem somos",
@@ -212,6 +231,7 @@ export function TermsPage() {
       title="Termos e Condições"
       description="Termos e condições de utilização do website UNEDO4ALL, regidos pela lei portuguesa."
       updated="3 de outubro de 2026"
+      path="/termos"
       sections={[
         {
           title: "1. Objeto e aceitação",

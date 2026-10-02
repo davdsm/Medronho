@@ -4,13 +4,43 @@ import { PartnerLogos } from "../components/PartnerLogos";
 import { Pill } from "../components/Pill";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { Story } from "../components/Story";
-import { usePage } from "../useReduced";
+import {
+  breadcrumbJsonLd,
+  getSiteUrl,
+  organizationJsonLd,
+  SITE,
+  useSeo,
+  websiteJsonLd,
+} from "../seo";
 
 export function HomePage() {
-  usePage(
-    "UNEDO4ALL",
-    "O projeto UNEDO4ALL estuda e desenvolve novos processos para conservação e valorização do medronho (Arbutus unedo).",
-  );
+  const origin = getSiteUrl();
+  useSeo({
+    title: SITE.titleDefault,
+    description: SITE.description,
+    path: "/",
+    jsonLd: [
+      organizationJsonLd(origin),
+      websiteJsonLd(origin),
+      {
+        "@type": "WebPage",
+        "@id": `${origin}/#webpage`,
+        url: `${origin}/`,
+        name: SITE.titleDefault,
+        description: SITE.description,
+        isPartOf: { "@id": `${origin}/#website` },
+        about: { "@id": `${origin}/#organization` },
+        inLanguage: SITE.language,
+        primaryImageOfPage: {
+          "@type": "ImageObject",
+          url: `${origin}${SITE.ogImagePath}`,
+          width: 1200,
+          height: 630,
+        },
+      },
+      breadcrumbJsonLd([{ name: "Início", path: "/" }], origin),
+    ],
+  });
   useArrive();
 
   return (

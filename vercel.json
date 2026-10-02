@@ -1,0 +1,53 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!robots\\.txt|sitemap\\.xml|llms\\.txt|site\\.webmanifest|og\\.(?:jpg|png)|share\\.jpg|favicon(?:-32)?\\.(?:svg|png)|apple-touch-icon\\.png|icon-\\d+\\.png|icons\\.svg|photos/.*|partners/.*|assets/.*).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/og.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        },
+        { "key": "Content-Type", "value": "image/jpeg" }
+      ]
+    },
+    {
+      "source": "/og.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/share.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

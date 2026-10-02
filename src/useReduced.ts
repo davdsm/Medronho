@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+export { usePage, useSeo } from "./seo";
+
 export function useReduced() {
   const [reduced, setReduced] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -13,14 +15,4 @@ export function useReduced() {
   }, []);
 
   return reduced;
-}
-
-export function usePage(title: string, description?: string) {
-  useEffect(() => {
-    document.title = title;
-    if (!description) return;
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute("content", description);
-  }, [title, description]);
 }

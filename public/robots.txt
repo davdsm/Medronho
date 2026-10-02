@@ -1,0 +1,14 @@
+# UNEDO4ALL
+User-agent: *
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+Sitemap: https://medronho.vercel.app/sitemap.xml

@@ -125,6 +125,16 @@ function strollBerry(progress = 0) {
   // Long blend out of the hero so the berry drifts, not jumps.
   const leave = smoothstep((vh * 1.05 - passeioTop) / (vh * 0.95));
 
+  // Mobile: keep the 3D berry for the hero only, then hide it.
+  if (phone) {
+    scene.x = rest.x;
+    scene.y = rest.y;
+    scene.scale = rest.scale;
+    scene.ry = rest.ry + progress * Math.PI * 0.2;
+    scene.opacity = 1 - leave;
+    return;
+  }
+
   let total = 0;
   let dockX = 0;
   let dockY = 0;

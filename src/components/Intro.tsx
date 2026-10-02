@@ -7,6 +7,8 @@ import { useReduced } from "../useReduced";
 
 const WORD = "UNEDO4ALL";
 const O_INDEX = 4; // the O in UNEDO
+/** Temporarily hide falling medronhos in the loader. */
+const SHOW_FALLING_FRUIT = false;
 
 function markOpened() {
   document.documentElement.dataset.opened = "true";
@@ -115,6 +117,7 @@ export function Intro() {
         ".fruit-loader__char:not([data-o='true']) .fruit-loader__char-inner",
       );
       const oRing = oMark.querySelector<HTMLElement>(".fruit-loader__o-ring");
+      const oLetter = oMark.querySelector<HTMLElement>(".fruit-loader__o-letter");
 
       // One ball only: hand the yellow circle to the mask, then hide the painted ball.
       hole.r = startR;
@@ -137,7 +140,7 @@ export function Intro() {
           },
           0.1,
         )
-        .to(oRing, { opacity: 0, duration: 0.35, ease: "power2.in" }, 0.18)
+        .to([oLetter, oRing].filter(Boolean), { opacity: 0, duration: 0.35, ease: "power2.in" }, 0.18)
         .to(stage, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0.2)
         .to(
           hole,
@@ -160,10 +163,39 @@ export function Intro() {
 
     const inners = brand.querySelectorAll<HTMLElement>(".fruit-loader__char-inner");
     const oUnit = oMark.querySelector<HTMLElement>(".fruit-loader__o-unit");
+    const oRing = oMark.querySelector<HTMLElement>(".fruit-loader__o-ring");
+    const oLetter = oMark.querySelector<HTMLElement>(".fruit-loader__o-letter");
+    let ballShown = false;
+
+    // Pin the yellow counter to the Paytone "O" ink center / counter
+    const fitOCounter = () => {
+      if (!oRing || !oLetter) return;
+      const size = parseFloat(getComputedStyle(oLetter).fontSize);
+      if (!size) return;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const font = getComputedStyle(oLetter);
+      ctx.font = `${font.fontWeight} ${size}px ${font.fontFamily}`;
+      ctx.textBaseline = "alphabetic";
+      const metrics = ctx.measureText("O");
+      const inkH =
+        (metrics.actualBoundingBoxAscent || size * 0.7) +
+        (metrics.actualBoundingBoxDescent || 0);
+      // Paytone One: ink center sits ~0.57em below the content box top
+      oRing.style.top = `${size * 0.57}px`;
+      oRing.style.width = `${inkH * 0.52}px`;
+      oRing.style.height = `${inkH * 0.52}px`;
+      ball.style.width = `${inkH * 0.44}px`;
+      ball.style.height = `${inkH * 0.44}px`;
+    };
+
+    void document.fonts.ready.then(fitOCounter);
+    fitOCounter();
 
     gsap.set(inners, { yPercent: 110, opacity: 0 });
     if (oUnit) gsap.set(oUnit, { yPercent: 110, opacity: 0 });
-    gsap.set(ball, { scale: 1, opacity: 1 });
+    gsap.set(ball, { opacity: 0 });
     gsap.set(progressEl, { opacity: 1 });
     gsap.set(stage, { opacity: 1 });
     hole.r = 0;
@@ -179,7 +211,7 @@ export function Intro() {
       delay: 0.18,
     });
 
-    // O ring + ball rise together on the O's step
+    // O ring rises with the word; yellow ball waits for 80%
     if (oUnit) {
       gsap.to(oUnit, {
         yPercent: 0,
@@ -190,14 +222,25 @@ export function Intro() {
       });
     }
 
-    physics = runFruitPhysics(stage, {
-      gravity: 1.35,
-      settledRatio: 0.8,
-      onSettled: () => {
-        settled = true;
-        maybeOpen();
-      },
-    });
+    const showBall = () => {
+      if (ballShown) return;
+      ballShown = true;
+      gsap.to(ball, { opacity: 1, duration: 0.55, ease: "power2.out" });
+    };
+
+    if (SHOW_FALLING_FRUIT) {
+      physics = runFruitPhysics(stage, {
+        gravity: 1.35,
+        settledRatio: 0.8,
+        onSettled: () => {
+          settled = true;
+          maybeOpen();
+        },
+      });
+    } else {
+      settled = true;
+      gsap.set(stage, { opacity: 0, visibility: "hidden" });
+    }
 
     gsap.to(tracker, {
       value: 100,
@@ -207,8 +250,10 @@ export function Intro() {
       onUpdate: () => {
         bar.style.width = `${tracker.value}%`;
         setProgress(Math.round(tracker.value));
+        if (tracker.value >= 80) showBall();
       },
       onComplete: () => {
+        showBall();
         progressDone = true;
         timers.push(window.setTimeout(maybeOpen, 280));
       },
@@ -264,21 +309,27 @@ export function Intro() {
         A abrir o site. {progress}%
       </p>
 
-      <div ref={stageRef} className="fruit-loader__stage" data-fruit-loader-ready="false">
-        {pile.map((fruit) => (
-          <div
-            key={fruit.key}
-            className="fruit-loader__fruit"
-            data-fruit=""
-            style={{
-              width: `calc(var(--fruit-base, 6rem) * ${fruit.scale})`,
-              aspectRatio: fruit.ratio,
-              minWidth: 72,
-              minHeight: 72,
-            }}
-            dangerouslySetInnerHTML={{ __html: fruit.html }}
-          />
-        ))}
+      <div
+        ref={stageRef}
+        className="fruit-loader__stage"
+        data-fruit-loader-ready="false"
+        hidden={!SHOW_FALLING_FRUIT}
+      >
+        {SHOW_FALLING_FRUIT &&
+          pile.map((fruit) => (
+            <div
+              key={fruit.key}
+              className="fruit-loader__fruit"
+              data-fruit=""
+              style={{
+                width: `calc(var(--fruit-base, 6rem) * ${fruit.scale})`,
+                aspectRatio: fruit.ratio,
+                minWidth: 72,
+                minHeight: 72,
+              }}
+              dangerouslySetInnerHTML={{ __html: fruit.html }}
+            />
+          ))}
       </div>
 
       <div ref={brandRef} className="fruit-loader__brand" aria-label="UNEDO4ALL">
@@ -294,8 +345,10 @@ export function Intro() {
               >
                 <span className="fruit-loader__char-clip">
                   <span className="fruit-loader__o-unit">
-                    <span className="fruit-loader__o-ring" aria-hidden="true" />
-                    <span ref={ballRef} className="fruit-loader__ball" aria-hidden="true" />
+                    <span className="fruit-loader__o-letter">O</span>
+                    <span className="fruit-loader__o-ring" aria-hidden="true">
+                      <span ref={ballRef} className="fruit-loader__ball" aria-hidden="true" />
+                    </span>
                   </span>
                 </span>
               </span>

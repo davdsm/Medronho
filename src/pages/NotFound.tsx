@@ -1,8 +1,13 @@
 import { Link } from "react-router";
-import { usePage } from "../useReduced";
+import { useSeo } from "../seo";
 
 export function NotFound() {
-  usePage("Página não encontrada · Medronho");
+  useSeo({
+    title: "Página não encontrada",
+    description: "A página pedida não existe no website UNEDO4ALL.",
+    path: typeof window !== "undefined" ? window.location.pathname : "/404",
+    noindex: true,
+  });
 
   return (
     <div className="flex min-h-[70dvh] flex-col justify-end bg-butter px-5 pt-32 pb-20 text-ink md:px-10">
