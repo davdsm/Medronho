@@ -554,6 +554,92 @@ html[data-opened] .page-in {
   }
 }
 
+.news-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid color-mix(in oklab, var(--color-foam) 28%, transparent);
+  border-radius: 999px;
+  color: var(--color-foam);
+  background: transparent;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.news-arrow:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--color-foam) 55%, transparent);
+  background: color-mix(in oklab, var(--color-foam) 8%, transparent);
+}
+
+.news-arrow:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.news-arrow:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.news-arrow:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-foam) 55%, transparent);
+  outline-offset: 3px;
+}
+
+.partner-logos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: clamp(1.75rem, 4vw, 3.5rem) clamp(1.25rem, 3vw, 3rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .partner-logos {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.partner-logos__item {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 11.5rem;
+  min-height: 4.5rem;
+  opacity: 0.88;
+  transition: opacity 0.3s ease;
+}
+
+.partner-logos__item:hover {
+  opacity: 1;
+}
+
+.partner-logos__img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 3.75rem;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .partner-logos__item {
+    max-width: 13.5rem;
+    min-height: 5.25rem;
+  }
+
+  .partner-logos__img {
+    max-height: 4.5rem;
+  }
+}
+
 /* Medronho page transition — berries fall, site palette */
 .page-transition {
   position: fixed;

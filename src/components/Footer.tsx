@@ -5,9 +5,9 @@ export function Footer() {
     <footer className="bg-wine text-foam">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 pt-16 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
-          <p className="font-display text-2xl tracking-[-0.03em]">medronho</p>
+          <p className="font-display text-2xl tracking-[-0.03em]">UNEDO4ALL</p>
           <p className="mt-3 max-w-[36ch] text-foam-soft">
-            Cinco casas no Barrocal, no Algarve, a tratar do medronho em conjunto.
+            Oito empresas a estudar e valorizar o medronho, maioritariamente no Centro do país.
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-[15px] font-medium">
@@ -23,11 +23,11 @@ export function Footer() {
         </nav>
       </div>
       <p className="mx-auto max-w-[1400px] px-5 pt-10 text-sm text-foam-soft md:px-10">
-        2026 Consórcio Medronho
+        2026 UNEDO4ALL
       </p>
       <div className="mt-6 overflow-hidden leading-none" aria-hidden="true">
-        <p className="translate-y-[0.12em] font-display text-[22vw] leading-[0.75] tracking-[-0.04em] text-butter">
-          medronho
+        <p className="translate-y-[0.12em] font-display text-[14vw] leading-[0.75] tracking-[-0.04em] text-butter md:text-[12vw]">
+          UNEDO4ALL
         </p>
       </div>
     </footer>

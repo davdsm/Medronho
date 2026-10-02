@@ -3,6 +3,27 @@ import { Link } from "react-router";
 import { posts } from "../data";
 import { ParallaxMedia } from "./Parallax";
 
+function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="h-5 w-5"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {direction === "prev" ? (
+        <path d="M14.5 5.5 8 12l6.5 6.5" />
+      ) : (
+        <path d="M9.5 5.5 16 12l-6.5 6.5" />
+      )}
+    </svg>
+  );
+}
+
 export function NewsCarousel() {
   const scroller = useRef<HTMLUListElement>(null);
   const drag = useRef({
@@ -15,11 +36,22 @@ export function NewsCarousel() {
     moved: false,
     pointerId: -1,
   });
-  const motion = useRef({
+  const motion = useRef<{
+    target: number;
+    raf: number;
+    ensureLoop: () => void;
+    clamp: (value: number) => number;
+    step: () => number;
+  }>({
     target: 0,
     raf: 0,
+    ensureLoop: () => {},
+    clamp: (value: number) => value,
+    step: () => 0,
   });
   const [grabbing, setGrabbing] = useState(false);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
 
   useEffect(() => {
     const el = scroller.current;
@@ -31,6 +63,14 @@ export function NewsCarousel() {
     const maxScroll = () => Math.max(0, el.scrollWidth - el.clientWidth);
 
     const clamp = (value: number) => Math.min(maxScroll(), Math.max(0, value));
+    motion.current.clamp = clamp;
+
+    const syncEdges = () => {
+      const max = maxScroll();
+      const left = motion.current.target;
+      setAtStart(left <= 2);
+      setAtEnd(left >= max - 2);
+    };
 
     const stopLoop = () => {
       if (motion.current.raf) {
@@ -45,30 +85,40 @@ export function NewsCarousel() {
       const target = motion.current.target;
 
       if (state.active) {
-        // Follow the finger closely while dragging.
         el.scrollLeft = current + (target - current) * (reduce ? 1 : 0.42);
+        syncEdges();
         motion.current.raf = requestAnimationFrame(tick);
         return;
       }
 
-      // Coast with friction after release.
       const gap = target - current;
       if (Math.abs(gap) < 0.35 && Math.abs(state.velocity) < 0.02) {
         el.scrollLeft = target;
         state.velocity = 0;
         motion.current.raf = 0;
         el.classList.remove("is-dragging");
+        syncEdges();
         return;
       }
 
       state.velocity *= 0.94;
       motion.current.target = clamp(target + state.velocity * 16);
       el.scrollLeft = current + (motion.current.target - current) * 0.18;
+      syncEdges();
       motion.current.raf = requestAnimationFrame(tick);
     };
 
     const ensureLoop = () => {
       if (!motion.current.raf) motion.current.raf = requestAnimationFrame(tick);
+    };
+    motion.current.ensureLoop = ensureLoop;
+
+    motion.current.step = () => {
+      const card = el.querySelector("li");
+      if (!card) return el.clientWidth * 0.8;
+      const styles = getComputedStyle(el);
+      const gap = Number.parseFloat(styles.columnGap || styles.gap || "20") || 20;
+      return card.getBoundingClientRect().width + gap;
     };
 
     const onPointerDown = (event: PointerEvent) => {
@@ -99,7 +149,6 @@ export function NewsCarousel() {
       const dt = Math.max(8, now - drag.current.lastT);
       if (Math.abs(delta) > 3) drag.current.moved = true;
 
-      // px/ms → px/frame-ish, smoothed so it doesn't feel jittery.
       const instant = (-step / dt) * 16;
       drag.current.velocity = drag.current.velocity * 0.65 + instant * 0.35;
       drag.current.lastX = event.clientX;
@@ -113,7 +162,6 @@ export function NewsCarousel() {
       if (event.pointerId !== drag.current.pointerId && event.type !== "pointercancel") return;
       drag.current.active = false;
       setGrabbing(false);
-      // Keep a bit of throw; soft clamp if almost still.
       if (Math.abs(drag.current.velocity) < 0.4) drag.current.velocity = 0;
       else drag.current.velocity = Math.max(-48, Math.min(48, drag.current.velocity));
       try {
@@ -141,12 +189,19 @@ export function NewsCarousel() {
       ensureLoop();
     };
 
+    const onScroll = () => {
+      if (!motion.current.raf) syncEdges();
+    };
+
+    syncEdges();
     el.addEventListener("pointerdown", onPointerDown);
     el.addEventListener("pointermove", onPointerMove);
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", end);
     el.addEventListener("click", onClickCapture, true);
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", syncEdges);
     return () => {
       stopLoop();
       el.removeEventListener("pointerdown", onPointerDown);
@@ -155,12 +210,48 @@ export function NewsCarousel() {
       el.removeEventListener("pointercancel", end);
       el.removeEventListener("click", onClickCapture, true);
       el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", syncEdges);
     };
   }, []);
 
+  const go = (direction: -1 | 1) => {
+    const el = scroller.current;
+    if (!el) return;
+    drag.current.velocity = 0;
+    drag.current.active = false;
+    el.classList.add("is-dragging");
+    motion.current.target = motion.current.clamp(
+      motion.current.target + direction * motion.current.step(),
+    );
+    motion.current.ensureLoop();
+  };
+
   return (
     <div className="news-bleed">
-      <p className="news-edge mb-5 text-sm text-foam-soft">Arrasta para ver as notícias.</p>
+      <div className="news-edge mb-5 flex items-center justify-between gap-4">
+        <p className="text-sm text-foam-soft">Arrasta para ver as notícias.</p>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            className="news-arrow"
+            aria-label="Notícia anterior"
+            disabled={atStart}
+            onClick={() => go(-1)}
+          >
+            <ArrowIcon direction="prev" />
+          </button>
+          <button
+            type="button"
+            className="news-arrow"
+            aria-label="Notícia seguinte"
+            disabled={atEnd}
+            onClick={() => go(1)}
+          >
+            <ArrowIcon direction="next" />
+          </button>
+        </div>
+      </div>
       <ul
         ref={scroller}
         className={`news-drag flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 ${

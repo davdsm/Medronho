@@ -8,8 +8,8 @@ import { usePage } from "../useReduced";
 
 export function HomePage() {
   usePage(
-    "Medronho",
-    "O medronho é o fruto do medronheiro. Cinco casas no Algarve tratam dele em conjunto.",
+    "UNEDO4ALL",
+    "O projeto UNEDO4ALL estuda e desenvolve novos processos para conservação e valorização do medronho (Arbutus unedo).",
   );
   useArrive();
 
@@ -29,7 +29,7 @@ export function HomePage() {
           </FadeUp>
           <FadeUp className="md:col-span-7" delay={0.12}>
             <p className="max-w-[46ch] text-lg leading-relaxed">
-              Cinco casas no Algarve tratam deste fruto em conjunto. Umas colhem, outras fazem o doce e a polpa, outra cozinha. À quinta-feira a caixa passa por todas.
+              O UNEDO4ALL reúne oito empresas, maioritariamente do Centro do país, para estudar e desenvolver novos processos de conservação e valorização do medronho no setor alimentar.
             </p>
             <div className="mt-6">
               <Pill to="/consorcio">Sobre o consórcio</Pill>
@@ -38,7 +38,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-butter px-5 py-20 text-ink md:px-10 md:py-28">
+      <section className="bg-ink px-5 py-20 text-foam md:px-10 md:py-28">
         <div className="mx-auto max-w-[1400px]">
           <FadeUp>
             <PartnerLogos />

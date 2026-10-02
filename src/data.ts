@@ -11,8 +11,9 @@ export type House = {
 
 export type Partner = {
   name: string;
-  role: string;
-  place: string;
+  logo: string;
+  role?: string;
+  place?: string;
 };
 
 export type Post = {
@@ -97,29 +98,36 @@ export const houses: House[] = [
 
 export const partners: Partner[] = [
   {
-    name: "Laboratório do Barrocal",
-    role: "Ensaios de solo e de rega",
-    place: "Faro",
+    name: "serQ — Centro de Inovação e Competências da Floresta",
+    logo: "/partners/serq.png",
   },
   {
-    name: "Escola de Cozinha do Sul",
-    role: "Estágios na Mesa da Serra",
-    place: "Loulé",
+    name: "Medronho & Canela ®",
+    logo: "/partners/medronho-canela.png",
   },
   {
-    name: "Mercado da Vila",
-    role: "Banca comum ao sábado",
-    place: "São Brás de Alportel",
+    name: "CATAA — Centro de Apoio Tecnológico Agro Alimentar",
+    logo: "/partners/cataa.png",
   },
   {
-    name: "Rota da Serra",
-    role: "Visitas aos pomares de novembro a janeiro",
-    place: "Algarve",
+    name: "ULO — Universidade Leiria • Oeste",
+    logo: "/partners/ulo.png",
   },
   {
-    name: "Cooperativa de Rega do Vale",
-    role: "Água nos verões secos",
-    place: "Benafim",
+    name: "SM — Santos & Marçal",
+    logo: "/partners/santos-marcal.png",
+  },
+  {
+    name: "Sosu Kombucha",
+    logo: "/partners/sosu.png",
+  },
+  {
+    name: "Tagus Valley — INOV.LINEA Tecnologias Alimentares",
+    logo: "/partners/tagus-valley.png",
+  },
+  {
+    name: "Politécnico de Leiria — Escola Superior de Turismo e Tecnologia do Mar",
+    logo: "/partners/politecnico-leiria-estm.png",
   },
 ];
 

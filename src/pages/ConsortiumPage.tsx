@@ -1,19 +1,24 @@
-import { houses } from "../data";
+import { partners } from "../data";
 import { PartnerLogos } from "../components/PartnerLogos";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { usePage } from "../useReduced";
 
 const facts = [
-  { label: "Casas", value: "5" },
-  { label: "Onde", value: "Barrocal, Algarve" },
-  { label: "Colheita", value: "Outubro a janeiro" },
-  { label: "Caixa", value: "Todas as quintas-feiras" },
+  { label: "Empresas", value: "8" },
+  { label: "Onde", value: "Maioritariamente no Centro" },
+  { label: "Fruto", value: "Arbutus unedo" },
+  { label: "Foco", value: "Conservação e valorização" },
+];
+
+const projectCopy = [
+  "O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para conservação e valorização do medronho (Arbutus unedo), visando ampliar significativamente a sua utilização no setor alimentar de forma sustentável. O projeto prevê atividades de investigação industrial e desenvolvimento experimental que visam desenvolver processos inovadores para conservação do fruto fresco e permitir a sua colocação no mercado de frutos vermelhos de inverno; bem como processos inovadores para extração de compostos bioativos e seleção de novas estirpes fermentadoras da microbiota do medronho, visando o desenvolvimento sustentável de diferentes tipologias de produtos alimentares à base de medronho.",
+  "Os resultados esperados incluem novos produtos diferenciados, como preparados de medronho para pastelaria, concentrado e sumo de medronho, fermentado não alcoólico e desidratado de medronho e de kombucha de medronho. A estratégia de disseminação do projeto integra ações como participação em feiras e conferências, criação de um website, publicação de resultados técnicos e científicos e demonstrações gastronómicas, visando fortalecer a valorização do medronho e impulsionar o seu reconhecimento nos mercados-alvo.",
 ];
 
 export function ConsortiumPage() {
   usePage(
-    "O consórcio · Medronho",
-    "Cinco casas no Algarve tratam do medronho em conjunto, da árvore até à mesa.",
+    "O consórcio · UNEDO4ALL",
+    "O projeto UNEDO4ALL estuda e desenvolve novos processos para conservação e valorização do medronho.",
   );
   useArrive();
 
@@ -29,13 +34,15 @@ export function ConsortiumPage() {
             className="max-w-[12ch] font-display text-[clamp(3rem,7vw,5.4rem)] leading-[0.95] tracking-[-0.03em]"
           />
         </FadeUp>
-        <div className="mt-8 grid max-w-[62ch] gap-5 text-lg leading-relaxed">
-          <FadeUp as="p" delay={0.15} hero>
-            O consórcio junta cinco casas do Barrocal. Umas têm os medronheiros, outras transformam o fruto, outra põe-no no prato. Ninguém vende a sua parte por fora na semana da caixa.
-          </FadeUp>
-          <FadeUp as="p" delay={0.25} hero>
-            À quinta-feira a caixa sai da Ribeira Funda e passa pela Oficina, pela Doçaria e pela Mesa. O que não é usado nesse dia fica registado, com o peso e a data. No fim do mês as casas juntam-se e acertam as contas.
-          </FadeUp>
+        <FadeUp as="p" className="mt-5 text-lg text-ink-soft" delay={0.1} hero>
+          Oito empresas, maioritariamente do Centro do país.
+        </FadeUp>
+        <div className="mt-8 grid max-w-[68ch] gap-5 text-lg leading-relaxed">
+          {projectCopy.map((paragraph, index) => (
+            <FadeUp as="p" key={paragraph.slice(0, 24)} delay={0.15 + index * 0.1} hero={index === 0}>
+              {paragraph}
+            </FadeUp>
+          ))}
         </div>
 
         <dl className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -52,32 +59,28 @@ export function ConsortiumPage() {
         <FadeUp className="mt-16">
           <SplitText
             as="h2"
-            text="As casas"
+            text="As empresas"
             mode="words"
             className="font-display text-[clamp(2rem,4vw,3.2rem)] leading-[1.05] tracking-[-0.03em]"
           />
         </FadeUp>
         <ul className="mt-8 border-t border-ink/15">
-          {houses.map((house, index) => (
+          {partners.map((partner, index) => (
             <FadeUp
               as="li"
-              key={house.slug}
-              delay={index * 0.06}
-              className="grid gap-2 border-b border-ink/15 py-6 md:grid-cols-12 md:items-baseline md:gap-6"
+              key={partner.logo}
+              delay={index * 0.05}
+              className="border-b border-ink/15 py-5"
             >
-              <h3 className="font-display text-2xl tracking-[-0.03em] md:col-span-4">{house.name}</h3>
-              <p className="md:col-span-3">{house.role}</p>
-              <p className="text-ink-soft md:col-span-5">
-                {house.place}. {house.line}
-              </p>
+              <p className="font-display text-xl tracking-[-0.03em] md:text-2xl">{partner.name}</p>
             </FadeUp>
           ))}
         </ul>
-
-        <FadeUp className="mt-16">
-          <PartnerLogos />
-        </FadeUp>
       </div>
+
+      <FadeUp className="mx-auto mt-16 max-w-[1400px] overflow-hidden rounded-[1.75rem] bg-ink px-6 py-12 md:px-12 md:py-16">
+        <PartnerLogos />
+      </FadeUp>
     </div>
   );
 }

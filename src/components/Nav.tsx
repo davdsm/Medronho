@@ -39,7 +39,7 @@ export function Nav() {
             className="rounded-full px-3 font-display text-[15px] tracking-[-0.03em]"
             onClick={() => setOpen(false)}
           >
-            medronho
+            UNEDO4ALL
           </Link>
           <div className="hidden items-center min-[960px]:flex">
             {links.map((link) => (

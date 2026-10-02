@@ -377,8 +377,9 @@ export function Story() {
         </h1>
 
         <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <p ref={copyRef} className="fade-up max-w-[34ch] text-lg leading-relaxed text-ink">
-            O medronho é o fruto do medronheiro. No outono fica vermelho e apanha-se à mão, quando cede ao dedo.
+          <p ref={copyRef} className="fade-up max-w-[42ch] text-lg leading-relaxed text-ink">
+            O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para
+            conservação e valorização do medronho (Arbutus unedo).
           </p>
           <div ref={ctaRef} className="fade-up flex flex-wrap gap-3">
             <Pill to="/consorcio">Sobre o consórcio</Pill>
