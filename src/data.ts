@@ -129,6 +129,10 @@ export const partners: Partner[] = [
     name: "Politécnico de Leiria — Escola Superior de Turismo e Tecnologia do Mar",
     logo: "/partners/politecnico-leiria-estm.png",
   },
+  {
+    name: "Decorgel",
+    logo: "/partners/decorgel.png",
+  },
 ];
 
 export const posts: Post[] = [

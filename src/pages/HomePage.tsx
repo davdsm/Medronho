@@ -29,7 +29,7 @@ export function HomePage() {
           </FadeUp>
           <FadeUp className="md:col-span-7" delay={0.12}>
             <p className="max-w-[46ch] text-lg leading-relaxed">
-              O UNEDO4ALL reúne oito empresas, maioritariamente do Centro do país, para estudar e desenvolver novos processos de conservação e valorização do medronho no setor alimentar.
+              O UNEDO4ALL reúne nove empresas, maioritariamente do Centro do país, para estudar e desenvolver novos processos de conservação e valorização do medronho no setor alimentar.
             </p>
             <div className="mt-6">
               <Pill to="/consorcio">Sobre o consórcio</Pill>

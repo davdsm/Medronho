@@ -7,7 +7,7 @@ export function Footer() {
         <div>
           <p className="font-display text-2xl tracking-[-0.03em]">UNEDO4ALL</p>
           <p className="mt-3 max-w-[36ch] text-foam-soft">
-            Oito empresas a estudar e valorizar o medronho, maioritariamente no Centro do país.
+            Nove empresas a estudar e valorizar o medronho, maioritariamente no Centro do país.
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-[15px] font-medium">

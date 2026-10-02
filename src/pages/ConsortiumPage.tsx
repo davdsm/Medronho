@@ -4,7 +4,7 @@ import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { usePage } from "../useReduced";
 
 const facts = [
-  { label: "Empresas", value: "8" },
+  { label: "Empresas", value: "9" },
   { label: "Onde", value: "Maioritariamente no Centro" },
   { label: "Fruto", value: "Arbutus unedo" },
   { label: "Foco", value: "Conservação e valorização" },
@@ -35,7 +35,7 @@ export function ConsortiumPage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-5 text-lg text-ink-soft" delay={0.1} hero>
-          Oito empresas, maioritariamente do Centro do país.
+          Nove empresas, maioritariamente do Centro do país.
         </FadeUp>
         <div className="mt-8 grid max-w-[68ch] gap-5 text-lg leading-relaxed">
           {projectCopy.map((paragraph, index) => (
