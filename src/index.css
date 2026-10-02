@@ -1,0 +1,711 @@
+@import "tailwindcss";
+
+/*
+  Drenched fruit poster.
+  Butter field, leaf, Mediterranean sky, wine night.
+  The scarlet lives in the 3D fruit and the photographs, so the page
+  never paints a red field behind it.
+*/
+@theme {
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Paytone One", ui-sans-serif, system-ui, sans-serif;
+  --color-butter: oklch(0.91 0.145 97);
+  --color-leaf: oklch(0.42 0.11 150);
+  --color-sky: oklch(0.42 0.09 245);
+  --color-wine: oklch(0.27 0.065 25);
+  --color-ink: oklch(0.22 0.035 30);
+  --color-ink-soft: oklch(0.39 0.035 30);
+  --color-foam: oklch(0.98 0.008 97);
+  --color-foam-soft: oklch(0.84 0.025 95);
+  --color-berry: oklch(0.55 0.2 27);
+  --color-blush: oklch(0.78 0.13 30);
+}
+
+html {
+  background: var(--color-butter);
+  color: var(--color-ink);
+  color-scheme: light;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overflow-x: clip;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-berry);
+  color: var(--color-foam);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-berry);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 40;
+  transform: translateY(-200%);
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: var(--color-butter);
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+}
+
+.skip:focus {
+  transform: none;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.menu-link {
+  animation: rise 0.65s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* davdsm-style masked letter/word rise */
+.split-text {
+  display: inline;
+}
+
+.split-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.split-line {
+  display: block;
+  transform: translateY(115%);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.split-line.is-in,
+html[data-opened] .split-line--hero.is-in,
+[data-arrive].is-in .split-line {
+  transform: translateY(0);
+}
+
+/* Same masked rise as davdsm.pt “We grow digital gardens.” */
+.hero-word-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+
+.hero-word {
+  display: block;
+  transform: translateY(115%);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(1.6rem);
+  transition:
+    opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.fade-up.is-in,
+html[data-opened] .fade-up[data-arrive-hero].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-opened] .page-in {
+  animation: rise 0.85s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Sticky beats with parallax photo */
+.beat-card {
+  position: relative;
+  overflow: hidden;
+  color: var(--color-foam);
+}
+
+.beat-card__bg {
+  position: absolute;
+  inset: -18% 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  will-change: transform;
+}
+
+.parallax-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.parallax-media {
+  display: block;
+  width: 100%;
+  height: 130%;
+  margin-top: -15%;
+  object-fit: cover;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Alternating feature rail (below hero) */
+.feature-rail {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4.5rem, 10vw, 8.5rem);
+  padding: clamp(4.5rem, 9vw, 7.5rem) 0 clamp(5rem, 10vw, 8rem);
+}
+
+.feature-block {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: center;
+  width: min(1180px, calc(100% - 2.5rem));
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .feature-block {
+    grid-template-columns: 1fr 1.05fr;
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  .feature-block--flip .feature-block__copy {
+    order: 2;
+  }
+
+  .feature-block--flip .feature-block__visual {
+    order: 1;
+  }
+}
+
+.feature-block__eyebrow {
+  margin: 0 0 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.feature-block__title {
+  margin: 0;
+  max-width: 12ch;
+  font-size: clamp(2.2rem, 4.6vw, 3.8rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.feature-block__text {
+  margin: 1.15rem 0 0;
+  max-width: 36ch;
+  font-size: 1.08rem;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+  text-wrap: pretty;
+}
+
+.feature-block__stage {
+  position: relative;
+  isolation: isolate;
+}
+
+.feature-block__panel {
+  position: absolute;
+  inset: 8% 6% -4% 10%;
+  z-index: 0;
+  border-radius: 2rem;
+  background: color-mix(in oklch, var(--color-blush) 72%, var(--color-butter));
+}
+
+.feature-block--flip .feature-block__panel {
+  inset: 8% 10% -4% 6%;
+}
+
+.feature-block__photo.parallax-frame {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 1 / 1.05;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: var(--color-ink);
+}
+
+.feature-block__stage--layered .feature-block__photo.parallax-frame {
+  aspect-ratio: 1.05 / 1.15;
+}
+
+.feature-block__inset {
+  position: absolute;
+  z-index: 2;
+  left: -6%;
+  bottom: -8%;
+  width: min(42%, 11.5rem);
+  aspect-ratio: 1;
+  border-radius: 1.35rem;
+  overflow: hidden;
+  box-shadow: 0 18px 40px oklch(0.22 0.035 30 / 0.22);
+  background: var(--color-ink);
+}
+
+.feature-block__inset img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 900px) {
+  .feature-block__inset {
+    left: -10%;
+    bottom: -10%;
+    width: min(38%, 13.5rem);
+    border-radius: 1.6rem;
+  }
+}
+
+@media (max-width: 899px) {
+  .feature-block__panel {
+    inset: 6% 4% -3% 8%;
+    border-radius: 1.5rem;
+  }
+
+  .feature-block__photo.parallax-frame {
+    border-radius: 1.5rem;
+  }
+}
+
+/* Agrumea-style fruit physics loader */
+.fruit-loader {
+  --fruit-base: clamp(5.2rem, 10.5vw, 8.5rem);
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow: hidden;
+  background: var(--color-ink);
+  color: var(--color-butter);
+}
+
+.fruit-loader[data-phase="open"] {
+  pointer-events: none;
+}
+
+.fruit-loader__content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.fruit-loader__mark {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 18vw, 12rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--color-butter);
+  pointer-events: none;
+}
+
+.fruit-loader__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fruit-loader__fruit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  user-select: none;
+  pointer-events: auto;
+  cursor: grab;
+  overflow: visible;
+}
+
+.fruit-loader__fruit:active {
+  cursor: grabbing;
+}
+
+.fruit-loader__fruit svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 14px 20px oklch(0.12 0.04 25 / 0.45));
+}
+
+.fruit-loader[data-phase="open"] .fruit-loader__fruit,
+.fruit-loader[data-phase="open"] .fruit-loader__mark {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.fruit-loader__sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.fruit-loader__sweep-panel {
+  position: absolute;
+  inset: 0;
+  background: var(--color-butter);
+  transform: translateY(105%);
+}
+
+.fruit-loader__sweep-line {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: 0;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-berry);
+  transform: translateY(120%);
+  opacity: 0.9;
+}
+
+.fruit-loader[data-phase="open"] .fruit-loader__sweep-panel {
+  animation: fruit-sweep 1.05s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+}
+
+.fruit-loader[data-phase="open"] .fruit-loader__sweep-line {
+  animation: fruit-sweep-line 1.05s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+}
+
+.fruit-loader[data-phase="open"] .fruit-loader__content {
+  animation: fruit-fade 0.55s 0.15s ease forwards;
+}
+
+.fruit-loader__skip {
+  display: none;
+}
+
+@keyframes fruit-sweep {
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes fruit-sweep-line {
+  0% {
+    transform: translateY(120%);
+  }
+  45% {
+    transform: translateY(-42vh);
+  }
+  100% {
+    transform: translateY(-110vh);
+  }
+}
+
+@keyframes fruit-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Custom painted scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-berry) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, oklch(0.62 0.19 30), var(--color-berry) 55%, oklch(0.38 0.12 25))
+      padding-box;
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-ink) 18%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    oklch(0.7 0.18 35),
+    oklch(0.5 0.2 27) 55%,
+    oklch(0.34 0.1 25)
+  );
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.news-bleed {
+  width: 100%;
+}
+
+.news-drag {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-y;
+  user-select: none;
+  overscroll-behavior-x: contain;
+}
+
+.news-drag.is-dragging {
+  scroll-snap-type: none;
+  cursor: grabbing;
+}
+
+.news-drag::-webkit-scrollbar {
+  display: none;
+}
+
+.news-drag > li:first-child {
+  margin-left: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+}
+
+.news-drag > li:last-child {
+  margin-right: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+}
+
+@media (min-width: 768px) {
+  .news-drag > li:first-child {
+    margin-left: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+  }
+
+  .news-drag > li:last-child {
+    margin-right: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+  }
+}
+
+.news-edge {
+  padding-inline: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+}
+
+@media (min-width: 768px) {
+  .news-edge {
+    padding-inline: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+  }
+}
+
+/* Medronho page transition — berries fall, site palette */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+}
+
+.page-transition__field {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: -8%;
+  bottom: -8%;
+  z-index: 1;
+  border-radius: 48% 52% 50% 50% / 70px 70px 110px 110px;
+  background: var(--color-butter);
+}
+
+.page-transition__curtain {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: -8%;
+  bottom: -8%;
+  z-index: 2;
+  border-radius: 46% 54% 48% 52% / 80px 80px 100px 100px;
+  background: linear-gradient(
+    165deg,
+    var(--color-wine) 0%,
+    oklch(0.2 0.06 25) 55%,
+    oklch(0.16 0.04 30) 100%
+  );
+}
+
+.page-transition__label {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--color-butter);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3.2vw, 1.9rem);
+  letter-spacing: -0.03em;
+}
+
+.page-transition__mark {
+  display: grid;
+  width: 1.55rem;
+  height: 1.8rem;
+  place-items: center;
+}
+
+.page-transition__mark .page-transition__berry-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.page-transition__berry {
+  position: absolute;
+  top: -12vh;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.page-transition__berry-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 14px oklch(0.22 0.035 30 / 0.35));
+}
+
+@keyframes berry-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10vh, 0) rotate(-18deg) scale(0.7);
+  }
+  10% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+    transform: translate3d(var(--pt-drift, -3vw), 52vh, 0) rotate(145deg) scale(1);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate3d(calc(var(--pt-drift, -3vw) * -0.6), 118vh, 0) rotate(310deg)
+      scale(0.92);
+  }
+}
+
+html[data-page-in] .page-shell > * {
+  animation: slide-in-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zoom-img {
+  transform: scale(1);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .zoom-img {
+    transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .zoom-frame:hover .zoom-img {
+    transform: scale(1.045);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .menu-link,
+  .zoom-img,
+  .page-in,
+  .page-shell > *,
+  .fruit-loader__sweep-panel,
+  .fruit-loader__sweep-line,
+  .fade-up,
+  .split-line,
+  .hero-word {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .split-line,
+  .hero-word {
+    transform: none !important;
+  }
+
+  .fruit-loader,
+  .page-transition {
+    display: none;
+  }
+}
