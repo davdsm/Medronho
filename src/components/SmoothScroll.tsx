@@ -14,6 +14,8 @@ export function SmoothScroll() {
         anchors: true,
         stopInertiaOnNavigate: true,
         autoRaf: false,
+        // Nested horizontal carousels (news) keep sideways gestures.
+        allowNestedScroll: true,
       },
       scrollCallback: () => ScrollTrigger.update(),
       initCustomTicker: (render) => {

@@ -181,7 +181,6 @@ export function NewsCarousel() {
         className={`news-drag flex gap-5 overflow-x-auto pb-2 md:gap-6 ${
           grabbing ? "is-dragging" : ""
         }`}
-        data-lenis-prevent-touch
       >
         {posts.map((post) => (
           <li

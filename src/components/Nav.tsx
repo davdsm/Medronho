@@ -67,7 +67,7 @@ export function Nav() {
       </header>
       {open ? (
         <div className="fixed inset-0 z-30 bg-ink text-foam">
-          <nav className="flex min-h-[100dvh] flex-col justify-end gap-1 px-6 pt-24 pb-12">
+          <nav className="flex min-h-[100dvh] flex-col justify-end gap-7 px-6 pt-24 pb-12 md:gap-8">
             {links.map((link, index) => (
               <Link
                 key={link.to}

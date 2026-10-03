@@ -262,21 +262,7 @@ function Cluster() {
 
   return (
     <group ref={group}>
-      <Fruit offset={0.4} ripe={1} position={[0.02, -0.02, 0.28]} scale={1} rotation={[0.2, 0.55, 0.04]} />
-      <Fruit
-        offset={4.2}
-        ripe={0.86}
-        position={[-0.74, -0.2, -0.42]}
-        scale={0.56}
-        rotation={[0.38, 1.2, 0.18]}
-      />
-      <Fruit
-        offset={8.6}
-        ripe={0.62}
-        position={[0.55, 0.12, -0.72]}
-        scale={0.36}
-        rotation={[-0.25, -0.7, -0.2]}
-      />
+      <Fruit offset={0.4} ripe={1} position={[0, 0, 0]} scale={1} rotation={[0.18, 0.45, 0.03]} />
     </group>
   );
 }
