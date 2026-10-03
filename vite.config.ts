@@ -88,6 +88,19 @@ export default defineConfig(({ mode }) => {
   const siteUrl = env.VITE_SITE_URL || "https://medronho.vercel.app";
 
   return {
-    plugins: [react(), tailwindcss(), seoFilesPlugin(siteUrl)],
+    plugins: [
+      react(),
+      tailwindcss(),
+      seoFilesPlugin(siteUrl),
+      {
+        name: "unedo-html-site-url",
+        transformIndexHtml(html) {
+          // Guarantee absolute OG URLs even if VITE_SITE_URL is missing on the host.
+          return html
+            .replaceAll("%VITE_SITE_URL%", siteUrl.replace(/\/+$/, ""))
+            .replaceAll("https://medronho.vercel.app", siteUrl.replace(/\/+$/, ""));
+        },
+      },
+    ],
   };
 });

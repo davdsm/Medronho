@@ -25,16 +25,16 @@
     <meta name="geo.region" content="PT" />
     <meta name="geo.placename" content="Portugal" />
 
-    <link rel="canonical" href="%VITE_SITE_URL%/" />
-    <link rel="alternate" hrefLang="pt-PT" href="%VITE_SITE_URL%/" />
-    <link rel="alternate" hrefLang="x-default" href="%VITE_SITE_URL%/" />
+    <!-- Absolute URLs: WhatsApp / Facebook / LinkedIn do not run JS and need valid og:image on first HTML. -->
+    <link rel="canonical" href="https://medronho.vercel.app/" />
+    <link rel="alternate" hrefLang="pt-PT" href="https://medronho.vercel.app/" />
+    <link rel="alternate" hrefLang="x-default" href="https://medronho.vercel.app/" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Open Graph: crawlers that do not run JS read these from the first HTML response -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="UNEDO4ALL" />
     <meta property="og:locale" content="pt_PT" />
@@ -43,9 +43,10 @@
       property="og:description"
       content="O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar."
     />
-    <meta property="og:url" content="%VITE_SITE_URL%/" />
-    <meta property="og:image" content="%VITE_SITE_URL%/og.jpg" />
-    <meta property="og:image:secure_url" content="%VITE_SITE_URL%/og.jpg" />
+    <meta property="og:url" content="https://medronho.vercel.app/" />
+    <meta property="og:image" content="https://medronho.vercel.app/og.jpg?v=20261003" />
+    <meta property="og:image:url" content="https://medronho.vercel.app/og.jpg?v=20261003" />
+    <meta property="og:image:secure_url" content="https://medronho.vercel.app/og.jpg?v=20261003" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -54,14 +55,13 @@
       content="Palavra medronho em tipografia bold sobre fundo amarelo, com um medronho 3D a substituir a letra o"
     />
 
-    <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="UNEDO4ALL — conservação e valorização do medronho" />
     <meta
       name="twitter:description"
       content="O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar."
     />
-    <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
+    <meta name="twitter:image" content="https://medronho.vercel.app/og.jpg?v=20261003" />
     <meta
       name="twitter:image:alt"
       content="Palavra medronho em tipografia bold sobre fundo amarelo, com um medronho 3D a substituir a letra o"
@@ -73,17 +73,17 @@
         "@graph": [
           {
             "@type": "Organization",
-            "@id": "%VITE_SITE_URL%/#organization",
+            "@id": "https://medronho.vercel.app/#organization",
             "name": "UNEDO4ALL",
             "alternateName": ["UNEDO4ALL", "Medronho UNEDO4ALL"],
-            "url": "%VITE_SITE_URL%",
+            "url": "https://medronho.vercel.app",
             "logo": {
               "@type": "ImageObject",
-              "url": "%VITE_SITE_URL%/og.jpg",
+              "url": "https://medronho.vercel.app/og.jpg?v=20261003",
               "width": 1200,
               "height": 630
             },
-            "image": "%VITE_SITE_URL%/og.jpg",
+            "image": "https://medronho.vercel.app/og.jpg?v=20261003",
             "description": "O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar.",
             "areaServed": { "@type": "Country", "name": "Portugal" },
             "knowsAbout": [
@@ -95,25 +95,25 @@
           },
           {
             "@type": "WebSite",
-            "@id": "%VITE_SITE_URL%/#website",
-            "url": "%VITE_SITE_URL%",
+            "@id": "https://medronho.vercel.app/#website",
+            "url": "https://medronho.vercel.app",
             "name": "UNEDO4ALL",
             "description": "O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar.",
             "inLanguage": "pt-PT",
-            "publisher": { "@id": "%VITE_SITE_URL%/#organization" }
+            "publisher": { "@id": "https://medronho.vercel.app/#organization" }
           },
           {
             "@type": "WebPage",
-            "@id": "%VITE_SITE_URL%/#webpage",
-            "url": "%VITE_SITE_URL%/",
+            "@id": "https://medronho.vercel.app/#webpage",
+            "url": "https://medronho.vercel.app/",
             "name": "UNEDO4ALL — conservação e valorização do medronho",
-            "isPartOf": { "@id": "%VITE_SITE_URL%/#website" },
-            "about": { "@id": "%VITE_SITE_URL%/#organization" },
+            "isPartOf": { "@id": "https://medronho.vercel.app/#website" },
+            "about": { "@id": "https://medronho.vercel.app/#organization" },
             "description": "O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar.",
             "inLanguage": "pt-PT",
             "primaryImageOfPage": {
               "@type": "ImageObject",
-              "url": "%VITE_SITE_URL%/og.jpg",
+              "url": "https://medronho.vercel.app/og.jpg?v=20261003",
               "width": 1200,
               "height": 630
             }

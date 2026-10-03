@@ -36,7 +36,8 @@ export const SITE = {
     "Portugal",
     "investigação industrial",
   ],
-  ogImagePath: "/og.jpg",
+  /** Cache-busted absolute path — WhatsApp/FB cache aggressively. */
+  ogImagePath: "/og.jpg?v=20261003",
   ogImageAlt:
     "Palavra medronho em tipografia bold sobre fundo amarelo, com um medronho 3D a substituir a letra o",
   themeColor: "#f0c423",
@@ -191,9 +192,9 @@ export function useSeo(input: SeoInput = {}) {
         ? rawTitle
         : `${rawTitle.replace(/\s·\sMedronho$/i, "")} · UNEDO4ALL`;
     const description = input.description?.trim() || SITE.description;
-    // Brand share image for all routes (social crawlers + WhatsApp / LinkedIn / X)
-    const image = absUrl(SITE.ogImagePath, origin);
-    const imageAlt = input.imageAlt || SITE.ogImageAlt;
+    // Always the brand OG image (ignore per-route images so shares stay consistent).
+    const image = absUrl(SITE.ogImagePath, FALLBACK_SITE_URL);
+    const imageAlt = SITE.ogImageAlt;
     const type = input.type || "website";
 
     document.title = title;
@@ -247,9 +248,13 @@ export function useSeo(input: SeoInput = {}) {
       property: "og:image:secure_url",
       content: image,
     });
+    ensureMeta('meta[property="og:image:url"]', {
+      property: "og:image:url",
+      content: image,
+    });
     ensureMeta('meta[property="og:image:type"]', {
       property: "og:image:type",
-      content: image.endsWith(".png") ? "image/png" : "image/jpeg",
+      content: "image/jpeg",
     });
     ensureMeta('meta[property="og:image:width"]', {
       property: "og:image:width",
