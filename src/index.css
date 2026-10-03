@@ -10,6 +10,7 @@
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Paytone One", ui-sans-serif, system-ui, sans-serif;
   --color-butter: oklch(0.91 0.145 97);
+  --color-beige: oklch(0.93 0.028 85);
   --color-leaf: oklch(0.42 0.11 150);
   --color-sky: oklch(0.42 0.09 245);
   --color-wine: oklch(0.27 0.065 25);
@@ -22,16 +23,57 @@
 }
 
 html {
-  background: var(--color-butter);
+  --page-bg: var(--color-butter);
+  background-color: var(--page-bg);
   color: var(--color-ink);
   color-scheme: light;
   scroll-padding-top: 5rem;
+  transition: background-color 1.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+
+  #sobre {
+    transition: none;
+  }
+}
+
+/* Consortium copy flips light when the page field goes ink */
+#sobre {
+  color: var(--color-ink);
+  transition: color 1.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html[data-page-tone="ink"] #sobre {
+  color: var(--color-foam);
+}
+
+#sobre a.group,
+#sobre a.group > span {
+  transition:
+    background-color 1.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 1.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+html[data-page-tone="ink"] #sobre a.group {
+  background: var(--color-foam);
+  color: var(--color-ink);
+}
+
+html[data-page-tone="ink"] #sobre a.group > span {
+  background: var(--color-ink);
+  color: var(--color-foam);
 }
 
 body {
   margin: 0;
   min-height: 100dvh;
   overflow-x: clip;
+  background: transparent;
   font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -685,14 +727,17 @@ html[data-opened] .page-in {
 .news-drag {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  touch-action: pan-y;
+  touch-action: pan-x;
   user-select: none;
+  -webkit-user-select: none;
   overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
 }
 
 .news-drag.is-dragging {
-  scroll-snap-type: none;
   cursor: grabbing;
+  scroll-snap-type: none;
 }
 
 .news-drag::-webkit-scrollbar {
@@ -700,30 +745,30 @@ html[data-opened] .page-in {
 }
 
 .news-drag > li:first-child {
-  margin-left: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+  margin-left: max(1.75rem, calc((100vw - 1400px) / 2 + 1.75rem));
 }
 
 .news-drag > li:last-child {
-  margin-right: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+  margin-right: max(1.75rem, calc((100vw - 1400px) / 2 + 1.75rem));
 }
 
 @media (min-width: 768px) {
   .news-drag > li:first-child {
-    margin-left: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+    margin-left: max(3.5rem, calc((100vw - 1400px) / 2 + 3.5rem));
   }
 
   .news-drag > li:last-child {
-    margin-right: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+    margin-right: max(3.5rem, calc((100vw - 1400px) / 2 + 3.5rem));
   }
 }
 
 .news-edge {
-  padding-inline: max(1.25rem, calc((100vw - 1400px) / 2 + 1.25rem));
+  padding-inline: max(1.75rem, calc((100vw - 1400px) / 2 + 1.75rem));
 }
 
 @media (min-width: 768px) {
   .news-edge {
-    padding-inline: max(2.5rem, calc((100vw - 1400px) / 2 + 2.5rem));
+    padding-inline: max(3.5rem, calc((100vw - 1400px) / 2 + 3.5rem));
   }
 }
 

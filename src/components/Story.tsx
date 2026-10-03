@@ -59,9 +59,54 @@ const rest = {
   ry: 0.2,
 };
 
+/** Fallback park when the hero word box is not measurable yet. */
+const restMobileFallback = {
+  x: 0,
+  y: 0.95,
+  scale: 0.32,
+  ry: 0.2,
+};
+
 const CAMERA_Z = 6.6;
 const CAMERA_FOV = 30;
 const CAMERA_Y = 0.05;
+
+function isPhone() {
+  return window.innerWidth < 900;
+}
+
+/** Park the berry above the "medronho" word — never on top of the letters. */
+function mobileHeroPark() {
+  const word =
+    document.querySelector<HTMLElement>("#hero h1") ||
+    document.querySelector<HTMLElement>(".hero-word");
+  if (!word) return restMobileFallback;
+
+  const r = word.getBoundingClientRect();
+  if (r.width < 8 || r.height < 8) return restMobileFallback;
+
+  const scale = 0.32;
+  // Scene fruit radius ~1; cluster also hangs a bit below its origin.
+  const visibleH =
+    2 * Math.tan((CAMERA_FOV * Math.PI) / 180 / 2) * CAMERA_Z;
+  const berryRadiusPx = (scale * window.innerHeight) / visibleH;
+  const gap = Math.max(14, window.innerHeight * 0.018);
+  const cx = r.left + r.width * 0.5;
+  // Sit fully above the word box (clearance includes lower satellite fruit).
+  const cy = r.top - berryRadiusPx * 1.45 - gap;
+  const point = clientToScene(cx, Math.max(8, cy));
+
+  return {
+    x: point.x,
+    y: point.y,
+    scale,
+    ry: 0.2,
+  };
+}
+
+function heroRest() {
+  return isPhone() ? mobileHeroPark() : rest;
+}
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -109,31 +154,39 @@ function dockPoint(el: HTMLElement, side: "left" | "right" | "center" | "bottom-
 function strollBerry(progress = 0) {
   const passeio = document.getElementById("passeio");
   const docks = Array.from(document.querySelectorAll<HTMLElement>("[data-berry-dock]"));
-  const phone = window.innerWidth < 900;
+  const phone = isPhone();
   const vh = window.innerHeight;
+  const base = heroRest();
 
   if (!passeio || !docks.length) {
-    scene.x = rest.x;
-    scene.y = rest.y;
-    scene.scale = rest.scale;
-    scene.ry = rest.ry + progress * Math.PI * 0.4;
+    scene.x = base.x;
+    scene.y = base.y;
+    scene.scale = base.scale;
+    scene.ry = base.ry + progress * Math.PI * 0.4;
     scene.opacity = 1;
+    return;
+  }
+
+  // Mobile: smaller berry; leave early, drift slowly upward and exit at the top.
+  // Scroll back to the hero reverses the same path.
+  if (phone) {
+    const hero = document.getElementById("hero");
+    const heroTop = hero?.getBoundingClientRect().top ?? 0;
+    const leave = smoothstep((-heroTop - vh * 0.02) / (vh * 0.38));
+    const visibleH = 2 * Math.tan((CAMERA_FOV * Math.PI) / 180 / 2) * CAMERA_Z;
+    const exitY = visibleH * 0.58 + 1.55;
+
+    scene.x = base.x;
+    scene.y = lerp(base.y, exitY, leave);
+    scene.scale = lerp(base.scale, base.scale * 0.82, leave);
+    scene.ry = base.ry + leave * 0.45;
+    scene.opacity = leave > 0.88 ? 1 - (leave - 0.88) / 0.12 : 1;
     return;
   }
 
   const passeioTop = passeio.getBoundingClientRect().top;
   // Long blend out of the hero so the berry drifts, not jumps.
   const leave = smoothstep((vh * 1.05 - passeioTop) / (vh * 0.95));
-
-  // Mobile: keep the 3D berry for the hero only, then hide it.
-  if (phone) {
-    scene.x = rest.x;
-    scene.y = rest.y;
-    scene.scale = rest.scale;
-    scene.ry = rest.ry + progress * Math.PI * 0.2;
-    scene.opacity = 1 - leave;
-    return;
-  }
 
   let total = 0;
   let dockX = 0;
@@ -171,9 +224,9 @@ function strollBerry(progress = 0) {
     dockS = rest.scale;
   }
 
-  const strolledX = lerp(rest.x, dockX, leave);
-  const strolledY = lerp(rest.y, dockY, leave);
-  const strolledS = lerp(rest.scale, dockS, leave);
+  const strolledX = lerp(base.x, dockX, leave);
+  const strolledY = lerp(base.y, dockY, leave);
+  const strolledS = lerp(base.scale, dockS, leave);
 
   // After the last feature ("Está bom quando cede"), drift off to the side.
   const last = docks[docks.length - 1];
@@ -187,7 +240,7 @@ function strollBerry(progress = 0) {
   scene.x = lerp(strolledX, offX, exit);
   scene.y = lerp(strolledY, strolledY * 0.35 - 0.08, exit);
   scene.scale = lerp(strolledS, strolledS * 0.82, exit);
-  scene.ry = rest.ry + progress * Math.PI * 2.1 + exit * 0.7;
+  scene.ry = base.ry + progress * Math.PI * 2.1 + exit * 0.7;
   scene.opacity = 1;
 }
 
@@ -243,10 +296,11 @@ export function Story() {
 
   useLayoutEffect(() => {
     if (reduced) {
-      scene.x = rest.x;
-      scene.y = rest.y;
-      scene.scale = rest.scale;
-      scene.ry = rest.ry;
+      const base = heroRest();
+      scene.x = base.x;
+      scene.y = base.y;
+      scene.scale = base.scale;
+      scene.ry = base.ry;
       scene.opacity = 1;
       scene.idle = true;
       if (titleWordRef.current) {
@@ -325,13 +379,15 @@ export function Story() {
         word.style.transform = "translateY(0)";
       }, 0.08);
 
+      const base = heroRest();
       tl.to(
         scene,
         {
           opacity: 1,
-          y: rest.y,
-          scale: rest.scale,
-          ry: rest.ry + Math.PI * 1.35,
+          x: base.x,
+          y: base.y,
+          scale: base.scale,
+          ry: base.ry + Math.PI * 1.35,
           duration: 1.45,
           ease: "power3.out",
         },
@@ -361,10 +417,11 @@ export function Story() {
         mo.disconnect();
         tl?.kill();
         scrollCtx?.revert();
-        scene.x = rest.x;
-        scene.y = rest.y;
-        scene.scale = rest.scale;
-        scene.ry = rest.ry;
+        const base = heroRest();
+        scene.x = base.x;
+        scene.y = base.y;
+        scene.scale = base.scale;
+        scene.ry = base.ry;
         scene.opacity = 1;
         scene.idle = true;
       };
@@ -374,10 +431,11 @@ export function Story() {
       killed = true;
       tl?.kill();
       scrollCtx?.revert();
-      scene.x = rest.x;
-      scene.y = rest.y;
-      scene.scale = rest.scale;
-      scene.ry = rest.ry;
+      const base = heroRest();
+      scene.x = base.x;
+      scene.y = base.y;
+      scene.scale = base.scale;
+      scene.ry = base.ry;
       scene.opacity = 1;
       scene.idle = true;
     };
@@ -385,7 +443,10 @@ export function Story() {
 
   return (
     <div id="story">
-      <section className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-butter px-5 pt-24 pb-8 md:px-10 md:pb-10">
+      <section
+        id="hero"
+        className="relative flex min-h-[100dvh] flex-col justify-end overflow-hidden bg-transparent px-5 pt-24 pb-8 md:px-10 md:pb-10"
+      >
         {reduced ? <BerryCanvas inline /> : null}
 
         <h1
@@ -428,7 +489,7 @@ export function Story() {
         </div>
       </section>
 
-      <section id="passeio" className="feature-rail bg-foam text-ink">
+      <section id="passeio" className="feature-rail bg-transparent text-ink">
         {features.map((feature, index) => (
           <FeatureBlock key={feature.title} feature={feature} index={index} />
         ))}

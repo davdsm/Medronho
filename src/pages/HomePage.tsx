@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { BodyTint } from "../components/BodyTint";
 import { NewsCarousel } from "../components/NewsCarousel";
 import { PartnerLogos } from "../components/PartnerLogos";
 import { Pill } from "../components/Pill";
@@ -45,9 +46,10 @@ export function HomePage() {
 
   return (
     <>
+      <BodyTint />
       <Story />
 
-      <section id="sobre" className="bg-foam px-5 py-20 text-ink md:px-10 md:py-28">
+      <section id="sobre" className="bg-transparent px-5 py-20 md:px-10 md:py-28">
         <div className="mx-auto grid max-w-[1100px] gap-8 md:grid-cols-12 md:items-end">
           <FadeUp className="md:col-span-5">
             <SplitText
@@ -68,7 +70,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-ink px-5 py-20 text-foam md:px-10 md:py-28">
+      <section id="logos" className="bg-transparent px-5 py-20 text-foam md:px-10 md:py-28">
         <div className="mx-auto max-w-[1400px]">
           <FadeUp>
             <PartnerLogos />
@@ -76,7 +78,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="overflow-hidden bg-wine py-20 text-foam md:py-28">
+      <section id="noticias-home" className="overflow-hidden bg-wine py-20 text-foam md:py-28">
         <div className="news-edge mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <FadeUp>
             <SplitText

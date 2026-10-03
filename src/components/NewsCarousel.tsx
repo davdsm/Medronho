@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { posts } from "../data";
-import { ParallaxMedia } from "./Parallax";
 
 function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
   return (
@@ -24,43 +23,15 @@ function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
   );
 }
 
-function easeOutQuint(t: number) {
-  return 1 - (1 - t) ** 5;
-}
-
+/** Free horizontal scroller — native touch, light desktop drag, no snap fighting. */
 export function NewsCarousel() {
   const scroller = useRef<HTMLUListElement>(null);
   const drag = useRef({
     active: false,
+    moved: false,
     startX: 0,
     startLeft: 0,
-    lastX: 0,
-    lastT: 0,
-    velocity: 0,
-    moved: false,
     pointerId: -1,
-  });
-  const glide = useRef({
-    active: false,
-    from: 0,
-    to: 0,
-    start: 0,
-    duration: 780,
-  });
-  const motion = useRef<{
-    target: number;
-    raf: number;
-    ensureLoop: () => void;
-    clamp: (value: number) => number;
-    step: () => number;
-    go: (direction: -1 | 1) => void;
-  }>({
-    target: 0,
-    raf: 0,
-    ensureLoop: () => {},
-    clamp: (value: number) => value,
-    step: () => 0,
-    go: () => {},
   });
   const [grabbing, setGrabbing] = useState(false);
   const [atStart, setAtStart] = useState(true);
@@ -70,168 +41,70 @@ export function NewsCarousel() {
     const el = scroller.current;
     if (!el) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    motion.current.target = el.scrollLeft;
-
     const maxScroll = () => Math.max(0, el.scrollWidth - el.clientWidth);
-
-    const clamp = (value: number) => Math.min(maxScroll(), Math.max(0, value));
-    motion.current.clamp = clamp;
 
     const syncEdges = () => {
       const max = maxScroll();
-      const left = glide.current.active ? glide.current.to : motion.current.target;
+      const left = el.scrollLeft;
       setAtStart(left <= 2);
       setAtEnd(left >= max - 2);
     };
 
-    const stopLoop = () => {
-      if (motion.current.raf) {
-        cancelAnimationFrame(motion.current.raf);
-        motion.current.raf = 0;
-      }
-    };
-
-    const tick = () => {
-      const state = drag.current;
-      const current = el.scrollLeft;
-
-      if (glide.current.active) {
-        const g = glide.current;
-        const raw = reduce ? 1 : (performance.now() - g.start) / g.duration;
-        const t = Math.min(1, raw);
-        const eased = easeOutQuint(t);
-        const next = g.from + (g.to - g.from) * eased;
-        el.scrollLeft = next;
-        motion.current.target = next;
-        if (t >= 1) {
-          el.scrollLeft = g.to;
-          motion.current.target = g.to;
-          g.active = false;
-          state.velocity = 0;
-          motion.current.raf = 0;
-          el.classList.remove("is-dragging");
-          syncEdges();
-          return;
-        }
-        syncEdges();
-        motion.current.raf = requestAnimationFrame(tick);
-        return;
-      }
-
-      const target = motion.current.target;
-
-      if (state.active) {
-        el.scrollLeft = current + (target - current) * (reduce ? 1 : 0.5);
-        syncEdges();
-        motion.current.raf = requestAnimationFrame(tick);
-        return;
-      }
-
-      const gap = target - current;
-      if (Math.abs(gap) < 0.4 && Math.abs(state.velocity) < 0.02) {
-        el.scrollLeft = target;
-        state.velocity = 0;
-        motion.current.raf = 0;
-        el.classList.remove("is-dragging");
-        syncEdges();
-        return;
-      }
-
-      // Softer coast after drag / wheel.
-      state.velocity *= 0.955;
-      motion.current.target = clamp(target + state.velocity * 16);
-      el.scrollLeft = current + (motion.current.target - current) * 0.14;
-      syncEdges();
-      motion.current.raf = requestAnimationFrame(tick);
-    };
-
-    const ensureLoop = () => {
-      if (!motion.current.raf) motion.current.raf = requestAnimationFrame(tick);
-    };
-    motion.current.ensureLoop = ensureLoop;
-
-    motion.current.step = () => {
+    const step = () => {
       const card = el.querySelector("li");
-      if (!card) return el.clientWidth * 0.8;
+      if (!card) return el.clientWidth * 0.75;
       const styles = getComputedStyle(el);
       const gap = Number.parseFloat(styles.columnGap || styles.gap || "20") || 20;
       return card.getBoundingClientRect().width + gap;
     };
 
-    motion.current.go = (direction: -1 | 1) => {
-      drag.current.velocity = 0;
-      drag.current.active = false;
-      const from = el.scrollLeft;
-      const base = glide.current.active ? glide.current.to : from;
-      const to = clamp(base + direction * motion.current.step());
-      if (Math.abs(to - from) < 0.5) {
-        syncEdges();
-        return;
-      }
-      el.classList.add("is-dragging");
-      glide.current = {
-        active: true,
-        from,
-        to,
-        start: performance.now(),
-        duration: reduce ? 1 : 820,
-      };
-      motion.current.target = to;
-      ensureLoop();
-      syncEdges();
+    const go = (direction: -1 | 1) => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      el.scrollBy({
+        left: direction * step(),
+        behavior: reduce ? "auto" : "smooth",
+      });
     };
 
+    // Expose for buttons via dataset bridge
+    (el as HTMLUListElement & { __go?: typeof go }).__go = go;
+
     const onPointerDown = (event: PointerEvent) => {
+      // Touch / pen: let the browser do native free scrolling.
+      if (event.pointerType === "touch" || event.pointerType === "pen") return;
       if (event.button !== 0) return;
-      glide.current.active = false;
-      const now = performance.now();
       drag.current = {
         active: true,
+        moved: false,
         startX: event.clientX,
         startLeft: el.scrollLeft,
-        lastX: event.clientX,
-        lastT: now,
-        velocity: 0,
-        moved: false,
         pointerId: event.pointerId,
       };
-      motion.current.target = el.scrollLeft;
       setGrabbing(true);
       el.classList.add("is-dragging");
       el.setPointerCapture(event.pointerId);
-      ensureLoop();
     };
 
     const onPointerMove = (event: PointerEvent) => {
-      if (!drag.current.active) return;
-      const now = performance.now();
+      if (!drag.current.active || event.pointerId !== drag.current.pointerId) return;
       const delta = event.clientX - drag.current.startX;
-      const step = event.clientX - drag.current.lastX;
-      const dt = Math.max(8, now - drag.current.lastT);
-      if (Math.abs(delta) > 3) drag.current.moved = true;
-
-      const instant = (-step / dt) * 16;
-      drag.current.velocity = drag.current.velocity * 0.7 + instant * 0.3;
-      drag.current.lastX = event.clientX;
-      drag.current.lastT = now;
-      motion.current.target = clamp(drag.current.startLeft - delta);
-      ensureLoop();
+      if (Math.abs(delta) > 4) drag.current.moved = true;
+      el.scrollLeft = drag.current.startLeft - delta;
+      syncEdges();
     };
 
-    const end = (event: PointerEvent) => {
+    const endDrag = (event: PointerEvent) => {
       if (!drag.current.active) return;
       if (event.pointerId !== drag.current.pointerId && event.type !== "pointercancel") return;
       drag.current.active = false;
       setGrabbing(false);
-      if (Math.abs(drag.current.velocity) < 0.35) drag.current.velocity = 0;
-      else drag.current.velocity = Math.max(-42, Math.min(42, drag.current.velocity));
+      el.classList.remove("is-dragging");
       try {
         el.releasePointerCapture(event.pointerId);
       } catch {
         /* ignore */
       }
-      ensureLoop();
+      syncEdges();
     };
 
     const onClickCapture = (event: MouseEvent) => {
@@ -243,40 +116,40 @@ export function NewsCarousel() {
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaX) < Math.abs(event.deltaY) && Math.abs(event.deltaX) < 2) return;
+      // Map vertical wheel to horizontal when the gesture is mostly sideways / trackpad.
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY) && Math.abs(event.deltaX) < 1.5) return;
       event.preventDefault();
-      glide.current.active = false;
-      drag.current.velocity = 0;
-      motion.current.target = clamp(motion.current.target + event.deltaX + event.deltaY);
-      el.classList.add("is-dragging");
-      ensureLoop();
-    };
-
-    const onScroll = () => {
-      if (!motion.current.raf) syncEdges();
+      el.scrollLeft += event.deltaX + event.deltaY;
+      syncEdges();
     };
 
     syncEdges();
     el.addEventListener("pointerdown", onPointerDown);
     el.addEventListener("pointermove", onPointerMove);
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
     el.addEventListener("click", onClickCapture, true);
     el.addEventListener("wheel", onWheel, { passive: false });
-    el.addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener("scroll", syncEdges, { passive: true });
     window.addEventListener("resize", syncEdges);
+
     return () => {
-      stopLoop();
       el.removeEventListener("pointerdown", onPointerDown);
       el.removeEventListener("pointermove", onPointerMove);
-      el.removeEventListener("pointerup", end);
-      el.removeEventListener("pointercancel", end);
+      el.removeEventListener("pointerup", endDrag);
+      el.removeEventListener("pointercancel", endDrag);
       el.removeEventListener("click", onClickCapture, true);
       el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("scroll", onScroll);
+      el.removeEventListener("scroll", syncEdges);
       window.removeEventListener("resize", syncEdges);
+      delete (el as HTMLUListElement & { __go?: typeof go }).__go;
     };
   }, []);
+
+  const go = (direction: -1 | 1) => {
+    const el = scroller.current as (HTMLUListElement & { __go?: (d: -1 | 1) => void }) | null;
+    el?.__go?.(direction);
+  };
 
   return (
     <div className="news-bleed">
@@ -288,7 +161,7 @@ export function NewsCarousel() {
             className="news-arrow"
             aria-label="Notícia anterior"
             disabled={atStart}
-            onClick={() => motion.current.go(-1)}
+            onClick={() => go(-1)}
           >
             <ArrowIcon direction="prev" />
           </button>
@@ -297,7 +170,7 @@ export function NewsCarousel() {
             className="news-arrow"
             aria-label="Notícia seguinte"
             disabled={atEnd}
-            onClick={() => motion.current.go(1)}
+            onClick={() => go(1)}
           >
             <ArrowIcon direction="next" />
           </button>
@@ -305,20 +178,26 @@ export function NewsCarousel() {
       </div>
       <ul
         ref={scroller}
-        className={`news-drag flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 ${
-          grabbing ? "cursor-grabbing is-dragging" : "cursor-grab"
+        className={`news-drag flex gap-5 overflow-x-auto pb-2 md:gap-6 ${
+          grabbing ? "is-dragging" : ""
         }`}
         data-lenis-prevent-touch
       >
         {posts.map((post) => (
-          <li key={post.slug} className="w-[min(78vw,28rem)] shrink-0 snap-start md:w-[min(42vw,32rem)]">
+          <li
+            key={post.slug}
+            className="w-[min(78vw,28rem)] shrink-0 md:w-[min(40vw,30rem)]"
+          >
             <Link to={`/noticias/${post.slug}`} className="group block" draggable={false}>
-              <ParallaxMedia
-                src={post.image}
-                alt={post.alt}
-                className="aspect-[4/3] w-full overflow-hidden rounded-[1.25rem]"
-                strength={18}
-              />
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-[1.25rem]">
+                <img
+                  src={post.image}
+                  alt={post.alt}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  draggable={false}
+                />
+              </div>
               <p className="mt-4 text-sm text-foam-soft">{post.date}</p>
               <h3 className="mt-1 font-display text-[clamp(1.6rem,2.5vw,2.2rem)] leading-[1.1] tracking-[-0.03em] group-hover:underline">
                 {post.title}
