@@ -117,17 +117,13 @@ export function LoginPage() {
       {/* Imagem em faixa no topo em ecrãs pequenos */}
       <div className="relative h-44 overflow-hidden sm:h-56 lg:hidden" aria-hidden="true">
         <Photo />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/10 to-white" />
       </div>
 
-      <div className="relative -mt-10 flex flex-col px-5 pb-6 sm:px-10 lg:mt-0 lg:px-16 lg:py-8">
-        <div className="flex items-center justify-center">
-          <a href="/" className="rounded-xl bg-white/90 p-1 lg:bg-transparent" aria-label="UNEDO4ALL, ver o site">
+      <div className="relative flex flex-col px-5 pb-6 sm:px-10 lg:px-16 lg:py-8">
+        <div className="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center py-10 lg:py-12">
+          <a href="/" className="mx-auto mb-5 block" aria-label="UNEDO4ALL, ver o site">
             <img src="/brand/unedo4all-logo.png" alt="UNEDO4ALL" width={619} height={103} className="h-8 w-auto sm:h-9" />
           </a>
-        </div>
-
-        <div className="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center py-10 lg:py-12">
           <h1 className="text-center font-display text-[1.9rem] leading-tight tracking-tight sm:text-[2.1rem]">Bem-vindo de volta</h1>
           <p className="mt-2 text-center text-[15px] text-ink-soft">Entre com os seus dados para gerir o site do projeto.</p>
 
@@ -235,8 +231,6 @@ export function LoginPage() {
 
       <div className="relative hidden overflow-hidden lg:block" aria-hidden="true">
         <Photo />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-transparent" />
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent" />
       </div>
     </div>
   );
