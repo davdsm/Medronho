@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { posts } from "./data";
+import { partners, posts } from "./data";
 
 const FALLBACK_SITE_URL = "https://medronho.vercel.app";
 
@@ -19,9 +19,9 @@ export function getSiteUrl() {
 export const SITE = {
   name: "UNEDO4ALL",
   legalName: "UNEDO4ALL",
-  titleDefault: "UNEDO4ALL — conservação e valorização do medronho",
+  titleDefault: "UNEDO4ALL — conservação e valorização integral do medronho",
   description:
-    "O projeto UNEDO4ALL reúne um consórcio de empresas em Portugal para estudar e desenvolver novos processos de conservação e valorização do medronho (Arbutus unedo) no setor alimentar.",
+    "Projeto UNEDO4ALL: estratégias inovadoras para conservação e valorização integral do medronho (Arbutus unedo) na indústria alimentar, desenvolvido por um consórcio de oito copromotores.",
   locale: "pt_PT",
   language: "pt-PT",
   keywords: [
@@ -31,8 +31,19 @@ export const SITE = {
     "conservação do medronho",
     "valorização do medronho",
     "frutos vermelhos",
-    "setor alimentar",
+    "valorização integral",
+    "indústria alimentar",
+    "kombucha de medronho",
     "consórcio",
+    "copromotores",
+    "COMPETE 2030",
+    "Portugal 2030",
+    "ULO",
+    "CATAA",
+    "TAGUSVALLEY",
+    "SerQ",
+    "Decorgel",
+    "Beira Baixa",
     "Portugal",
     "investigação industrial",
   ],
@@ -41,6 +52,10 @@ export const SITE = {
   ogImageAlt:
     "Palavra medronho em tipografia bold sobre fundo amarelo, com um medronho 3D a substituir a letra o",
   themeColor: "#f0c423",
+  /** Project logo (not the share image) — used as the Organization logo. */
+  logoPath: "/brand/unedo4all-logo.png",
+  projectName:
+    "Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar",
 } as const;
 
 export type SeoInput = {
@@ -129,13 +144,13 @@ export function organizationJsonLd(origin = getSiteUrl()) {
     "@type": "Organization",
     "@id": `${origin}/#organization`,
     name: SITE.legalName,
-    alternateName: ["UNEDO4ALL", "Medronho UNEDO4ALL"],
+    alternateName: ["UNEDO4ALL", SITE.projectName],
     url: origin,
     logo: {
       "@type": "ImageObject",
-      url: absUrl(SITE.ogImagePath, origin),
-      width: 1200,
-      height: 630,
+      url: absUrl(SITE.logoPath, origin),
+      width: 619,
+      height: 103,
     },
     image: absUrl(SITE.ogImagePath, origin),
     description: SITE.description,
@@ -149,6 +164,11 @@ export function organizationJsonLd(origin = getSiteUrl()) {
       "conservação de frutos",
       "valorização alimentar",
     ],
+    member: partners.map((partner) => ({
+      "@type": "Organization",
+      name: partner.name,
+      url: partner.url,
+    })),
   };
 }
 

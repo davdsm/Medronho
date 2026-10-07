@@ -1,6 +1,6 @@
 # UNEDO4ALL
 
-> Projeto português de investigação e desenvolvimento para conservação e valorização do medronho (Arbutus unedo) no setor alimentar.
+> Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar. Projeto português de investigação e desenvolvimento sobre o medronho (Arbutus unedo), financiado pelo COMPETE 2030 e Portugal 2030 e cofinanciado pela União Europeia.
 
 ## Site
 - Home: /
@@ -15,5 +15,6 @@ O UNEDO4ALL reúne um consórcio de oito copromotores (entidades de investigaç�
 
 ## Contacto / marca
 Nome: UNEDO4ALL
+Copromotores: ULO, CATAA, TAGUSVALLEY, SerQ, Decorgel, Sõsu Kombucha, Medronho & Canela, Santos & Marçal
 Tema: medronho, Arbutus unedo, valorização alimentar, investigação industrial
 Idioma: pt-PT

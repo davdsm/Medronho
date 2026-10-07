@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!robots\\.txt|sitemap\\.xml|llms\\.txt|site\\.webmanifest|og\\.(?:jpg|png)|share\\.jpg|favicon(?:-32)?\\.(?:svg|png)|apple-touch-icon\\.png|icon-\\d+\\.png|icons\\.svg|photos/.*|partners/.*|assets/.*).*)",
+      "source": "/((?!robots\\.txt|sitemap\\.xml|llms\\.txt|site\\.webmanifest|og\\.(?:jpg|png)|share\\.jpg|favicon(?:-32)?\\.(?:svg|png)|apple-touch-icon\\.png|icon-\\d+\\.png|icons\\.svg|photos/.*|partners/.*|brand/.*|funding/.*|documentos/.*|assets/.*).*)",
       "destination": "/index.html"
     }
   ],
