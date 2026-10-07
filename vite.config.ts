@@ -22,6 +22,7 @@ function seoFilesPlugin(siteUrl: string): Plugin {
   const origin = siteUrl.replace(/\/+$/, "");
   const paths = [
     "/",
+    "/sobre",
     "/consorcio",
     "/noticias",
     "/privacidade",

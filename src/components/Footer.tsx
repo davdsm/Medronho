@@ -32,7 +32,7 @@ export function Footer() {
             alt="COMPETE 2030, Portugal 2030 e Cofinanciado pela União Europeia"
             width={1595}
             height={290}
-            className="mx-auto h-auto w-full max-w-[620px]"
+            className="mx-auto h-auto w-full max-w-[760px]"
             loading="lazy"
           />
         </div>

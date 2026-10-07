@@ -85,7 +85,7 @@ export function AboutPage() {
         <FadeUp as="div" className="mt-6 max-w-[68ch]" delay={0.08}>
           <ul className="grid list-disc gap-3 pl-5 text-lg leading-relaxed marker:text-ink-soft">
             {objectives.map((objective) => (
-              <li key={objective.slice(0, 32)}>{objective}</li>
+              <li key={objective}>{objective}</li>
             ))}
           </ul>
         </FadeUp>
