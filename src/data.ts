@@ -12,8 +12,8 @@ export type House = {
 export type Partner = {
   name: string;
   logo: string;
-  role?: string;
-  place?: string;
+  url: string;
+  kind: "enesii" | "empresa";
 };
 
 export type Post = {
@@ -98,40 +98,52 @@ export const houses: House[] = [
 
 export const partners: Partner[] = [
   {
-    name: "serQ — Centro de Inovação e Competências da Floresta",
-    logo: "/partners/serq.png",
-  },
-  {
-    name: "Medronho & Canela ®",
-    logo: "/partners/medronho-canela.png",
+    name: "ULO — Universidade de Leiria e Oeste",
+    logo: "/partners/ulo.png",
+    url: "https://www.ulo.pt/",
+    kind: "enesii",
   },
   {
     name: "CATAA — Centro de Apoio Tecnológico Agro Alimentar",
     logo: "/partners/cataa.png",
+    url: "https://www.cataa.pt/",
+    kind: "enesii",
   },
   {
-    name: "ULO — Universidade Leiria • Oeste",
-    logo: "/partners/ulo.png",
-  },
-  {
-    name: "SM — Santos & Marçal",
-    logo: "/partners/santos-marcal.png",
-  },
-  {
-    name: "Sosu Kombucha",
-    logo: "/partners/sosu.png",
-  },
-  {
-    name: "Tagus Valley — INOV.LINEA Tecnologias Alimentares",
+    name: "TAGUSVALLEY — Parque de Ciência e Tecnologia",
     logo: "/partners/tagus-valley.png",
+    url: "https://tagusvalley.pt/",
+    kind: "enesii",
   },
   {
-    name: "Politécnico de Leiria — Escola Superior de Turismo e Tecnologia do Mar",
-    logo: "/partners/politecnico-leiria-estm.png",
+    name: "SerQ — Centro de Inovação e Competências da Floresta",
+    logo: "/partners/serq.png",
+    url: "https://www.serq.pt/",
+    kind: "enesii",
   },
   {
-    name: "Decorgel",
+    name: "Decorgel — Produtos Alimentares, S.A.",
     logo: "/partners/decorgel.png",
+    url: "https://www.decorgel.pt/pt/",
+    kind: "empresa",
+  },
+  {
+    name: "Sõsu Kombucha",
+    logo: "/partners/sosu.png",
+    url: "https://sosukombucha.com/",
+    kind: "empresa",
+  },
+  {
+    name: "Medronho & Canela",
+    logo: "/partners/medronho-canela.png",
+    url: "https://medronhoecanela.com/",
+    kind: "empresa",
+  },
+  {
+    name: "Santos & Marçal, SA",
+    logo: "/partners/santos-marcal.png",
+    url: "https://www.santosemarcal.pt/index.php/pt",
+    kind: "empresa",
   },
 ];
 

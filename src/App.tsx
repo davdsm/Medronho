@@ -17,6 +17,7 @@ import { SmoothScroll } from "./components/SmoothScroll";
 import { ScrollTrigger } from "./gsap";
 import { scrollBus } from "./scene";
 import { useReduced } from "./useReduced";
+import { AboutPage } from "./pages/AboutPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { ConsortiumPage } from "./pages/ConsortiumPage";
 import { HomePage } from "./pages/HomePage";
@@ -124,6 +125,7 @@ function Shell() {
       <main id="conteudo" className="page-shell">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/sobre" element={<AboutPage />} />
           <Route path="/consorcio" element={<ConsortiumPage />} />
           <Route path="/noticias" element={<JournalPage />} />
           <Route path="/noticias/:slug" element={<ArticlePage />} />

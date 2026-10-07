@@ -4,13 +4,14 @@
 
 ## Site
 - Home: /
+- Sobre: /sobre
 - Consórcio: /consorcio
 - Notícias: /noticias
 - Privacidade: /privacidade
 - Termos: /termos
 
 ## Sobre
-O UNEDO4ALL reúne um consórcio de empresas, maioritariamente do Centro de Portugal, para desenvolver processos inovadores de conservação do fruto fresco, extração de compostos bioativos e novos produtos alimentares à base de medronho.
+O UNEDO4ALL reúne um consórcio de oito copromotores (entidades de investigação e empresas), maioritariamente do Centro de Portugal, para desenvolver processos inovadores de conservação do fruto fresco, extração de compostos bioativos e novos produtos alimentares à base de medronho.
 
 ## Contacto / marca
 Nome: UNEDO4ALL

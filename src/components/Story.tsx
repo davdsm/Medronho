@@ -5,9 +5,10 @@ import { useReduced } from "../useReduced";
 import { BerryCanvas } from "./Berry";
 import { ParallaxMedia } from "./Parallax";
 import { Pill } from "./Pill";
+import { Species } from "./Species";
 import { FadeUp, SplitText, useArrive } from "./Reveal";
 
-const words = ["medronheiro", "outono", "Barrocal", "vermelho", "outubro", "janeiro"];
+const words = ["medronheiro", "outono", "Beira Baixa", "vermelho", "outubro", "janeiro"];
 
 type Feature = {
   eyebrow: string;
@@ -36,7 +37,7 @@ const features: Feature[] = [
     title: "Demora cerca de um ano.",
     copy: "Não fica maduro de um dia para o outro. A apanha começa em outubro e vai até janeiro.",
     image: "/photos/hillside.jpg",
-    alt: "Encosta do Barrocal no outono, com medronheiros a vermelhar.",
+    alt: "Encosta da Beira Baixa no outono, com medronheiros a vermelhar.",
     flip: true,
     dock: "right",
   },
@@ -464,7 +465,7 @@ export function Story() {
         <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <p ref={copyRef} className="fade-up max-w-[42ch] text-lg leading-relaxed text-ink">
             O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para
-            conservação e valorização do medronho (Arbutus unedo).
+            conservação e valorização do medronho (<Species />).
           </p>
           <div ref={ctaRef} className="fade-up flex flex-wrap gap-3">
             <Pill to="/consorcio">Sobre o consórcio</Pill>

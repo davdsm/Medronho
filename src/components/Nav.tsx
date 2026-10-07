@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 const links = [
+  { to: "/sobre", label: "Sobre" },
   { to: "/consorcio", label: "Consórcio" },
   { to: "/noticias", label: "Notícias" },
 ];

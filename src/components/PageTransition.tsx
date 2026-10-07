@@ -5,7 +5,7 @@ const ease = "cubic-bezier(0.22, 1, 0.36, 1)";
 const phrases = [
   "a amadurecer…",
   "na caixa…",
-  "pelo Barrocal…",
+  "pela Beira Baixa…",
   "ao toque…",
   "de outono…",
   "a vermelhar…",

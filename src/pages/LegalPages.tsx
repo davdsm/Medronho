@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
+import { withSpecies } from "../components/Species";
 import { breadcrumbJsonLd, useSeo } from "../seo";
 
 type Section = {
@@ -65,17 +66,17 @@ function LegalLayout({
               </h2>
               <div className="mt-4 grid gap-4 text-[1.05rem] leading-relaxed text-ink">
                 {section.paragraphs.map((p) => (
-                  <p key={p.slice(0, 48)}>{p}</p>
+                  <p key={p.slice(0, 48)}>{withSpecies(p)}</p>
                 ))}
                 {section.list ? (
                   <ul className="grid list-disc gap-2 pl-5 marker:text-ink-soft">
                     {section.list.map((item) => (
-                      <li key={item.slice(0, 48)}>{item}</li>
+                      <li key={item.slice(0, 48)}>{withSpecies(item)}</li>
                     ))}
                   </ul>
                 ) : null}
                 {section.afterList?.map((p) => (
-                  <p key={p.slice(0, 48)}>{p}</p>
+                  <p key={p.slice(0, 48)}>{withSpecies(p)}</p>
                 ))}
               </div>
             </FadeUp>
