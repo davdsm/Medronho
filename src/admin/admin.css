@@ -18,3 +18,14 @@
   background: #bfdbfe;
   color: #18181b;
 }
+
+@layer base {
+  /* Cursor de «mão» em tudo o que tem uma ação (o Tailwind 4 repõe o cursor por omissão nos botões). */
+  :is(.admin-root, .admin-login) :is(button, [role="button"], [role="tab"], [role="radio"], [role="menuitem"], a[href], summary, select, label:has(input[type="checkbox"]), input[type="checkbox"], input[type="radio"], input[type="file"]) {
+    cursor: pointer;
+  }
+  :is(.admin-root, .admin-login) :is(button, select, input):disabled,
+  :is(.admin-root, .admin-login) label:has(input:disabled) {
+    cursor: not-allowed;
+  }
+}

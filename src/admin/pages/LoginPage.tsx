@@ -113,7 +113,7 @@ export function LoginPage() {
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => setCaps(e.getModifierState?.("CapsLock") ?? false);
 
   return (
-    <div className="grid min-h-dvh bg-white text-ink lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <div className="admin-login grid min-h-dvh bg-white text-ink lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       {/* Imagem em faixa no topo em ecrãs pequenos */}
       <div className="relative h-44 overflow-hidden sm:h-56 lg:hidden" aria-hidden="true">
         <Photo />
