@@ -40,7 +40,13 @@ export function Nav() {
             className="site-nav__brand"
             onClick={() => setOpen(false)}
           >
-            UNEDO4ALL
+            <img
+              src="/brand/unedo4all-logo.png"
+              alt="UNEDO4ALL"
+              width={619}
+              height={103}
+              className="block h-6 w-auto"
+            />
           </Link>
           <div className="hidden items-center min-[960px]:flex">
             {links.map((link) => (

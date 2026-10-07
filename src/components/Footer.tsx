@@ -5,7 +5,13 @@ export function Footer() {
     <footer className="bg-ink text-foam">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 pt-16 md:flex-row md:items-end md:justify-between md:px-10">
         <div>
-          <p className="font-display text-2xl tracking-[-0.03em]">UNEDO4ALL</p>
+          <img
+            src="/brand/unedo4all-logo.png"
+            alt="UNEDO4ALL"
+            width={619}
+            height={103}
+            className="block h-9 w-auto md:h-11"
+          />
           <p className="mt-3 max-w-[44ch] text-foam-soft">
             Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar
           </p>
