@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "../../lib/api";
 import { useAuth } from "../auth";
-import { Badge, Button, Card, ErrorBox, PageHeader, TextInput, useToast } from "../ui";
+import { Badge, Button, Card, ErrorBox, PageHeader, TextInput, initials, useToast } from "../ui";
 
 export function AccountPage() {
   const { user } = useAuth();
@@ -17,6 +17,10 @@ export function AccountPage() {
     e.preventDefault();
     setErrors({});
     setFormError(null);
+    if (next.length < 10) {
+      setErrors({ newPassword: "A palavra-passe deve ter pelo menos 10 caracteres." });
+      return;
+    }
     if (next !== again) {
       setErrors({ again: "As palavras-passe não coincidem." });
       return;
@@ -31,7 +35,7 @@ export function AccountPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         setErrors({ ...(err.fields ?? {}) });
-        setFormError(err.message);
+        setFormError(err.fields && Object.keys(err.fields).length ? null : err.message);
       } else setFormError("Erro inesperado.");
     } finally {
       setBusy(false);
@@ -41,23 +45,29 @@ export function AccountPage() {
   return (
     <>
       <PageHeader title="A minha conta" />
-      <div className="grid max-w-xl gap-6">
-        <Card>
-          <p className="font-semibold">{user?.name}</p>
-          <p className="text-ink-soft">{user?.email}</p>
-          <div className="mt-3">
-            <Badge tone={user?.role === "admin" ? "yellow" : "gray"}>{user?.role === "admin" ? "Administrador" : "Editor"}</Badge>
+      <div className="grid max-w-3xl gap-6">
+        <Card title="Perfil">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-zinc-900 text-lg font-semibold text-white">{initials(user?.name ?? "")}</span>
+            <div className="min-w-0 flex-1 basis-40">
+              <p className="truncate font-medium text-zinc-900">{user?.name}</p>
+              <p className="truncate text-sm text-zinc-500">{user?.email}</p>
+            </div>
+            <div>
+              <Badge tone={user?.role === "admin" ? "blue" : "gray"}>{user?.role === "admin" ? "Administrador" : "Editor"}</Badge>
+            </div>
           </div>
         </Card>
-        <Card>
-          <form onSubmit={submit} className="grid gap-4" noValidate>
-            <h2 className="font-display text-xl tracking-tight">Alterar palavra-passe</h2>
+        <Card title="Alterar palavra-passe" description="Ao alterar, as sessões abertas noutros dispositivos são terminadas.">
+          <form onSubmit={submit} className="grid gap-6" noValidate>
             {formError ? <ErrorBox>{formError}</ErrorBox> : null}
             <TextInput label="Palavra-passe atual" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} error={errors.currentPassword} />
-            <TextInput label="Nova palavra-passe" type="password" autoComplete="new-password" help="Mínimo de 10 caracteres." value={next} onChange={(e) => setNext(e.target.value)} error={errors.newPassword} />
-            <TextInput label="Repetir nova palavra-passe" type="password" autoComplete="new-password" value={again} onChange={(e) => setAgain(e.target.value)} error={errors.again} />
+            <div className="grid gap-6 md:grid-cols-2">
+              <TextInput label="Nova palavra-passe" type="password" autoComplete="new-password" help="Mínimo de 10 caracteres." value={next} onChange={(e) => setNext(e.target.value)} error={errors.newPassword} />
+              <TextInput label="Repetir nova palavra-passe" type="password" autoComplete="new-password" value={again} onChange={(e) => setAgain(e.target.value)} error={errors.again} />
+            </div>
             <div>
-              <Button type="submit" disabled={busy || !current || !next}>
+              <Button type="submit" disabled={busy || !current || !next || !again}>
                 {busy ? "A guardar…" : "Alterar palavra-passe"}
               </Button>
             </div>

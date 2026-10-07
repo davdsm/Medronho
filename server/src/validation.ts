@@ -14,7 +14,7 @@ export function parse<T extends z.ZodType>(schema: T, data: unknown): z.infer<T>
   }
   const first = Object.entries(fields)[0];
   const summary = first ? (first[0] === "_" ? first[1] : `${first[0]}: ${first[1]}`) : "Dados inválidos.";
-  throw badRequest(`Dados inválidos — ${summary}`, fields);
+  throw badRequest(`Dados inválidos. ${summary}`, fields);
 }
 
 export function isRealDate(value: string): boolean {

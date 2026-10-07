@@ -1,8 +1,11 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
+import { ArrowLeft, ArrowSquareOut, Trash } from "@phosphor-icons/react";
 import { api, ApiError } from "../../lib/api";
+import { formatDate } from "../../lib/types";
 import { ImagePicker } from "../ImagePicker";
-import { Button, Card, ConfirmDialog, ErrorBox, PageHeader, Select, Spinner, TextArea, TextInput, useToast, useUnsavedWarning } from "../ui";
+import { useStats } from "../stats";
+import { Badge, Button, Card, ConfirmDialog, ErrorBox, PageHeader, SaveBar, SectionNav, Spinner, TextArea, TextInput, useToast, useUnsavedWarning } from "../ui";
 import type { AdminPost } from "./PostsPage";
 
 type Form = {
@@ -19,14 +22,17 @@ type Form = {
   featured: boolean;
 };
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 
 const empty = (): Form => ({
   title: "",
   slug: "",
   excerpt: "",
   body: "",
-  image: "/photos/harvest.jpg",
+  image: "",
   imageAlt: "",
   author: "",
   category: "",
@@ -49,11 +55,23 @@ const fromPost = (p: AdminPost): Form => ({
   featured: p.featured,
 });
 
+/** Erros do servidor para o corpo vêm como «body.3»; junta-os no campo «body». */
+function normalizeErrors(fields: Record<string, string> | undefined) {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(fields ?? {})) {
+    const m = /^body\.(\d+)$/.exec(k);
+    if (m) out.body = `Parágrafo ${Number(m[1]) + 1}: ${v}`;
+    else out[k] = v;
+  }
+  return out;
+}
+
 export function PostEditorPage() {
   const { id } = useParams();
   const isNew = id === undefined;
   const navigate = useNavigate();
   const toast = useToast();
+  const { refresh } = useStats();
   const [form, setForm] = useState<Form | null>(isNew ? empty() : null);
   const [initial, setInitial] = useState<string>(isNew ? JSON.stringify(empty()) : "");
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -65,6 +83,7 @@ export function PostEditorPage() {
 
   useEffect(() => {
     if (isNew) return;
+    setForm(null);
     api<{ post: AdminPost }>("GET", `/admin/posts/${id}`)
       .then(({ post }) => {
         const f = fromPost(post);
@@ -78,16 +97,24 @@ export function PostEditorPage() {
   const dirty = form !== null && JSON.stringify(form) !== initial;
   useUnsavedWarning(dirty);
 
+  const sections = useMemo(
+    () => [
+      { id: "conteudo", label: "Conteúdo", flag: !!(errors.title || errors.excerpt || errors.body) },
+      { id: "imagem", label: "Imagem", flag: !!(errors.image || errors.imageAlt) },
+      { id: "publicacao", label: "Publicação", flag: !!(errors.publishedAt || errors.status) },
+      { id: "detalhes", label: "Autor e endereço", flag: !!(errors.author || errors.slug || errors.category) },
+    ],
+    [errors],
+  );
+
   if (loadError) {
     return (
-      <>
+      <div className="grid max-w-xl gap-4">
         <ErrorBox>{loadError}</ErrorBox>
-        <p className="mt-4">
-          <Link to="/admin/noticias" className="underline">
-            Voltar às notícias
-          </Link>
-        </p>
-      </>
+        <Link to="/admin/noticias" className="text-sm text-blue-600 hover:underline">
+          ← Voltar às notícias
+        </Link>
+      </div>
     );
   }
   if (!form) return <Spinner />;
@@ -97,8 +124,8 @@ export function PostEditorPage() {
     if (errors[key]) setErrors({ ...errors, [key]: "" });
   };
 
-  async function submit(e: FormEvent) {
-    e.preventDefault();
+  async function save(e?: FormEvent) {
+    e?.preventDefault();
     if (!form) return;
     setBusy(true);
     setErrors({});
@@ -107,6 +134,9 @@ export function PostEditorPage() {
       .split(/\n\s*\n/)
       .map((p) => p.trim())
       .filter(Boolean);
+    const local: Record<string, string> = {};
+    if (!form.image) local.image = "Escolha uma imagem.";
+    if (!paragraphs.length) local.body = "Escreva o texto da notícia.";
     const payload = {
       title: form.title,
       ...(form.slug.trim() ? { slug: form.slug.trim() } : {}),
@@ -121,6 +151,7 @@ export function PostEditorPage() {
       featured: form.status === "published" && form.featured,
     };
     try {
+      if (Object.keys(local).length) throw new ApiError(400, "Há campos por preencher.", local);
       const res = isNew
         ? await api<{ post: AdminPost }>("POST", "/admin/posts", payload)
         : await api<{ post: AdminPost }>("PUT", `/admin/posts/${id}`, payload);
@@ -129,16 +160,28 @@ export function PostEditorPage() {
       setForm(f);
       setInitial(JSON.stringify(f));
       setSaved(res.post);
+      refresh();
       if (isNew) navigate(`/admin/noticias/${res.post.id}`, { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
-        setErrors(err.fields ?? {});
-        setFormError(err.message);
+        const fields = normalizeErrors(err.fields);
+        setErrors(fields);
+        setFormError(Object.keys(fields).length ? "Corrija os campos assinalados." : err.message);
+        const firstKey = Object.keys(fields)[0];
+        const section = sections.find((s) =>
+          ({ conteudo: ["title", "excerpt", "body"], imagem: ["image", "imageAlt"], publicacao: ["publishedAt", "status"], detalhes: ["author", "slug", "category"] })[s.id]?.includes(firstKey ?? ""),
+        );
+        document.getElementById(section?.id ?? "conteudo")?.scrollIntoView({ behavior: "smooth", block: "start" });
       } else setFormError("Erro inesperado.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setBusy(false);
     }
+  }
+
+  function discard() {
+    setForm(JSON.parse(initial) as Form);
+    setErrors({});
+    setFormError(null);
   }
 
   async function doDelete() {
@@ -147,6 +190,7 @@ export function PostEditorPage() {
       await api("DELETE", `/admin/posts/${id}`);
       toast("ok", "Notícia apagada.");
       setInitial(JSON.stringify(form));
+      refresh();
       navigate("/admin/noticias");
     } catch (err) {
       toast("error", err instanceof ApiError ? err.message : "Não foi possível apagar.");
@@ -156,104 +200,153 @@ export function PostEditorPage() {
     }
   }
 
+  const twoCols = "grid gap-x-8 gap-y-6 md:grid-cols-2";
+
   return (
-    <form onSubmit={submit} noValidate>
+    <form onSubmit={save} noValidate>
+      <Link to="/admin/noticias" className="mb-4 inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900">
+        <ArrowLeft size={16} aria-hidden /> Notícias
+      </Link>
       <PageHeader
-        title={isNew ? "Nova notícia" : "Editar notícia"}
+        title={isNew ? "Nova notícia" : saved?.title || "Editar notícia"}
         actions={
           <>
-            <Link to="/admin/noticias">
-              <Button tone="secondary">Voltar</Button>
-            </Link>
-            {saved && saved.status === "published" ? (
+            {saved ? (
+              <Badge tone={saved.status === "published" ? "green" : "gray"} dot>
+                {saved.status === "published" ? "Publicada" : "Rascunho"}
+              </Badge>
+            ) : (
+              <Badge tone="blue">Nova</Badge>
+            )}
+            {saved?.status === "published" ? (
               <a href={`/noticias/${saved.slug}`} target="_blank" rel="noopener noreferrer">
-                <Button tone="secondary">Ver no site ↗</Button>
+                <Button tone="secondary" small>
+                  <ArrowSquareOut size={16} aria-hidden /> Ver no site
+                </Button>
               </a>
+            ) : null}
+            {!isNew ? (
+              <Button tone="secondary" small onClick={() => setConfirmDelete(true)} disabled={busy} className="!text-red-600">
+                <Trash size={16} aria-hidden /> Apagar
+              </Button>
             ) : null}
           </>
         }
+        meta={saved ? <>Atualizada: {formatDate(saved.updatedAt.slice(0, 10))}</> : null}
       />
-      {formError ? (
-        <div className="mb-5">
-          <ErrorBox>{formError}</ErrorBox>
-        </div>
-      ) : null}
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <Card className="grid content-start gap-5">
-          <TextInput label="Título" value={form.title} onChange={(e) => set("title", e.target.value)} error={errors.title} maxLength={160} required />
-          <TextArea
-            label="Resumo"
-            help="Aparece nas listas e na página inicial. Até 300 caracteres."
-            value={form.excerpt}
-            onChange={(e) => set("excerpt", e.target.value)}
-            error={errors.excerpt}
-            maxLength={300}
-            rows={3}
-          />
-          <TextArea
-            label="Texto"
-            help="Separe os parágrafos com uma linha em branco."
-            value={form.body}
-            onChange={(e) => set("body", e.target.value)}
-            error={errors.body}
-            rows={14}
-          />
-          <ImagePicker value={form.image} onChange={(url) => set("image", url)} error={errors.image} />
-          <TextInput
-            label="Descrição da imagem"
-            help="Texto alternativo, para quem não vê a imagem (acessibilidade)."
-            value={form.imageAlt}
-            onChange={(e) => set("imageAlt", e.target.value)}
-            error={errors.imageAlt}
-            maxLength={200}
-          />
-        </Card>
-        <div className="grid content-start gap-6">
-          <Card className="grid gap-5">
-            <Select label="Estado" value={form.status} onChange={(e) => set("status", e.target.value as Form["status"])} error={errors.status}>
-              <option value="draft">Rascunho (não aparece no site)</option>
-              <option value="published">Publicada</option>
-            </Select>
-            <TextInput label="Data de publicação" type="date" value={form.publishedAt} onChange={(e) => set("publishedAt", e.target.value)} error={errors.publishedAt} />
-            <label className="flex items-start gap-3 text-[15px]">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4 accent-[var(--color-wine)]"
-                checked={form.status === "published" && form.featured}
-                disabled={form.status !== "published"}
-                onChange={(e) => set("featured", e.target.checked)}
+
+      <div className="flex gap-10">
+        <div className="grid min-w-0 flex-1 gap-6">
+          {formError ? <ErrorBox>{formError}</ErrorBox> : null}
+
+          <Card id="conteudo" title="Conteúdo">
+            <div className="grid gap-6">
+              <TextInput label="Título" value={form.title} onChange={(e) => set("title", e.target.value)} error={errors.title} maxLength={160} showCount required />
+              <TextArea
+                label="Resumo"
+                help="Aparece nas listas de notícias e no carrossel da página inicial."
+                value={form.excerpt}
+                onChange={(e) => set("excerpt", e.target.value)}
+                error={errors.excerpt}
+                maxLength={300}
+                showCount
+                rows={3}
               />
-              <span>
-                <span className="font-semibold">Mostrar na página inicial</span>
-                <span className="block text-[13px] text-ink-soft">Só notícias publicadas. A ordem define-se em «Página inicial».</span>
-              </span>
-            </label>
+              <TextArea label="Texto" help="Separe os parágrafos com uma linha em branco." value={form.body} onChange={(e) => set("body", e.target.value)} error={errors.body} rows={14} />
+            </div>
           </Card>
-          <Card className="grid gap-5">
-            <TextInput label="Autor" value={form.author} onChange={(e) => set("author", e.target.value)} error={errors.author} maxLength={100} />
-            <TextInput label="Categoria (opcional)" value={form.category} onChange={(e) => set("category", e.target.value)} error={errors.category} maxLength={100} />
-            <TextInput
-              label="Endereço (slug)"
-              help={isNew ? "Opcional. Se vazio, é gerado a partir do título." : "Alterar muda o link público da notícia."}
-              value={form.slug}
-              onChange={(e) => set("slug", e.target.value)}
-              error={errors.slug}
-              maxLength={80}
-            />
+
+          <Card id="imagem" title="Imagem">
+            <div className="grid gap-6">
+              <ImagePicker value={form.image} onChange={(url) => set("image", url)} error={errors.image} />
+              <TextInput
+                label="Descrição da imagem"
+                help="Texto alternativo para quem não vê a imagem (leitores de ecrã)."
+                value={form.imageAlt}
+                onChange={(e) => set("imageAlt", e.target.value)}
+                error={errors.imageAlt}
+                maxLength={200}
+              />
+            </div>
           </Card>
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={busy || !dirty}>
-              {busy ? "A guardar…" : isNew ? "Criar notícia" : "Guardar alterações"}
-            </Button>
-            {!isNew ? (
-              <Button tone="ghost" className="!text-berry" onClick={() => setConfirmDelete(true)} disabled={busy}>
-                Apagar
+
+          <Card id="publicacao" title="Publicação">
+            <div className={twoCols}>
+              <div className="grid content-start gap-1.5">
+                <span id="estado-label" className="text-sm text-zinc-500">
+                  Estado
+                </span>
+                <div role="radiogroup" aria-labelledby="estado-label" className="grid h-11 grid-cols-2 rounded-lg bg-zinc-100 p-1">
+                  {(
+                    [
+                      ["draft", "Rascunho"],
+                      ["published", "Publicada"],
+                    ] as const
+                  ).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={form.status === value}
+                      onClick={() => set("status", value)}
+                      className={`rounded-md text-sm transition-colors ${form.status === value ? "bg-white font-medium text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[13px] text-zinc-500">{form.status === "draft" ? "Não aparece no site." : "Visível no site."}</p>
+              </div>
+              <TextInput label="Data de publicação" type="date" value={form.publishedAt} onChange={(e) => set("publishedAt", e.target.value)} error={errors.publishedAt} />
+              <label className={`flex items-start gap-3 rounded-xl border p-4 md:col-span-2 ${form.status === "published" ? "cursor-pointer border-zinc-200 hover:bg-zinc-50" : "border-zinc-100 opacity-60"}`}>
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 rounded accent-blue-600"
+                  checked={form.status === "published" && form.featured}
+                  disabled={form.status !== "published"}
+                  onChange={(e) => set("featured", e.target.checked)}
+                />
+                <span>
+                  <span className="block text-sm font-medium text-zinc-900">Mostrar na página inicial</span>
+                  <span className="block text-[13px] text-zinc-500">
+                    {form.status === "published" ? "Entra no carrossel de notícias. A ordem define-se em «Página inicial»." : "Disponível apenas para notícias publicadas."}
+                  </span>
+                </span>
+              </label>
+            </div>
+          </Card>
+
+          <Card id="detalhes" title="Autor e endereço">
+            <div className={twoCols}>
+              <TextInput label="Autor" value={form.author} onChange={(e) => set("author", e.target.value)} error={errors.author} maxLength={100} />
+              <TextInput label="Categoria (opcional)" value={form.category} onChange={(e) => set("category", e.target.value)} error={errors.category} maxLength={100} />
+              <div className="md:col-span-2">
+                <TextInput
+                  label="Endereço (slug)"
+                  help={isNew ? "Opcional. Se ficar vazio, é gerado a partir do título." : `Link público: /noticias/${form.slug || "…"}. Alterá-lo quebra links já partilhados.`}
+                  value={form.slug}
+                  onChange={(e) => set("slug", e.target.value.toLowerCase())}
+                  error={errors.slug}
+                  maxLength={80}
+                  placeholder="ex.: colheita-de-outubro"
+                />
+              </div>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-2 border-t border-zinc-100 pt-6">
+              <Button type="submit" disabled={busy || (!isNew && !dirty)}>
+                {busy ? "A guardar…" : isNew ? "Criar notícia" : "Guardar alterações"}
               </Button>
-            ) : null}
-          </div>
-          {dirty ? <p className="text-sm text-ink-soft">Tem alterações por guardar.</p> : null}
+              <Button tone="secondary" onClick={() => (dirty ? discard() : navigate("/admin/noticias"))} disabled={busy}>
+                Cancelar
+              </Button>
+            </div>
+          </Card>
         </div>
+        <SectionNav items={sections} />
       </div>
+
+      <SaveBar visible={dirty} busy={busy} onSave={() => void save()} onDiscard={discard} />
+
       {confirmDelete ? (
         <ConfirmDialog
           title="Apagar notícia?"

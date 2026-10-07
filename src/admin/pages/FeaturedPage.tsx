@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
+import { ArrowDown, ArrowSquareOut, ArrowUp, Plus, X } from "@phosphor-icons/react";
 import { api, ApiError } from "../../lib/api";
 import { formatDate } from "../../lib/types";
-import { Button, Card, ErrorBox, PageHeader, Spinner, useToast, useUnsavedWarning } from "../ui";
+import { useStats } from "../stats";
+import { Button, Card, EmptyState, ErrorBox, IconButton, PageHeader, SaveBar, Spinner, useToast, useUnsavedWarning } from "../ui";
 import type { AdminPost } from "./PostsPage";
 
 export function FeaturedPage() {
   const toast = useToast();
+  const { refresh } = useStats();
   const [posts, setPosts] = useState<AdminPost[] | null>(null);
   const [ids, setIds] = useState<number[]>([]);
   const [saved, setSaved] = useState<number[]>([]);
@@ -50,6 +53,7 @@ export function FeaturedPage() {
     try {
       await api("PUT", "/admin/featured", { ids });
       setSaved(ids);
+      refresh();
       toast("ok", "Página inicial atualizada.");
     } catch (e) {
       toast("error", e instanceof ApiError ? e.message : "Não foi possível guardar.");
@@ -58,76 +62,75 @@ export function FeaturedPage() {
     }
   }
 
+  const thumb = (p: AdminPost) => <img src={p.image} alt="" className="h-11 w-14 shrink-0 rounded-lg object-cover ring-1 ring-black/5" />;
+
   return (
     <>
       <PageHeader
         title="Página inicial"
-        intro="Escolha que notícias aparecem no carrossel «Notícias» da página inicial e por que ordem. Sem nenhuma, a secção fica escondida."
+        intro="Escolha as notícias do carrossel «Notícias» da página inicial e a ordem em que aparecem. Sem nenhuma escolhida, a secção não é mostrada."
         actions={
           <>
-            <a href="/#noticias-home" target="_blank" rel="noopener noreferrer">
-              <Button tone="secondary">Ver no site ↗</Button>
-            </a>
             <Button onClick={() => void save()} disabled={!dirty || busy}>
               {busy ? "A guardar…" : "Guardar"}
             </Button>
+            <a href="/#noticias-home" target="_blank" rel="noopener noreferrer">
+              <Button tone="secondary">
+                <ArrowSquareOut size={16} aria-hidden /> Ver no site
+              </Button>
+            </a>
           </>
         }
       />
-      {dirty ? <p className="mb-4 text-sm font-medium text-ink-soft">Tem alterações por guardar.</p> : null}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-        <Card>
-          <h2 className="font-display text-xl tracking-tight">Em destaque ({ids.length})</h2>
-          {ids.length === 0 ? <p className="mt-3 text-ink-soft">Nenhuma notícia em destaque.</p> : null}
-          <ol className="mt-4 grid gap-2" data-testid="featured-list">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <Card title={`No carrossel (${ids.length})`} description="Por esta ordem, da esquerda para a direita.">
+          {ids.length === 0 ? <EmptyState title="Nenhuma notícia em destaque.">Adicione notícias a partir da lista ao lado.</EmptyState> : null}
+          <ol className="grid gap-2" data-testid="featured-list">
             {ids.map((id, index) => {
               const p = byId.get(id)!;
               return (
-                <li key={id} className="flex flex-wrap items-center gap-3 rounded-xl bg-beige p-2.5">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-wine text-sm font-bold text-foam">{index + 1}</span>
-                  <img src={p.image} alt="" className="h-12 w-16 shrink-0 rounded-md object-cover" />
-                  <div className="min-w-0 flex-1 basis-32">
-                    <p className="truncate font-semibold">{p.title}</p>
-                    <p className="text-xs text-ink-soft">{formatDate(p.publishedAt)}</p>
+                <li key={id} className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2.5 pr-1.5">
+                  <span className="w-5 shrink-0 text-center text-sm font-medium text-zinc-400 tabular-nums">{index + 1}</span>
+                  {thumb(p)}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[15px] font-medium text-zinc-900">{p.title}</p>
+                    <p className="text-[13px] text-zinc-500">{formatDate(p.publishedAt)}</p>
                   </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button tone="secondary" small aria-label={`Subir «${p.title}»`} disabled={index === 0} onClick={() => move(index, -1)}>
-                      ↑
-                    </Button>
-                    <Button tone="secondary" small aria-label={`Descer «${p.title}»`} disabled={index === ids.length - 1} onClick={() => move(index, 1)}>
-                      ↓
-                    </Button>
-                    <Button tone="ghost" small className="!text-berry" aria-label={`Remover «${p.title}» dos destaques`} onClick={() => setIds(ids.filter((x) => x !== id))}>
-                      Remover
-                    </Button>
+                  <div className="flex shrink-0 items-center">
+                    <IconButton label={`Subir «${p.title}»`} disabled={index === 0} onClick={() => move(index, -1)}>
+                      <ArrowUp size={16} aria-hidden />
+                    </IconButton>
+                    <IconButton label={`Descer «${p.title}»`} disabled={index === ids.length - 1} onClick={() => move(index, 1)}>
+                      <ArrowDown size={16} aria-hidden />
+                    </IconButton>
+                    <IconButton label={`Remover «${p.title}» do carrossel`} onClick={() => setIds(ids.filter((x) => x !== id))} className="hover:!bg-red-50 hover:!text-red-600">
+                      <X size={16} aria-hidden />
+                    </IconButton>
                   </div>
                 </li>
               );
             })}
           </ol>
         </Card>
-        <Card>
-          <h2 className="font-display text-xl tracking-tight">Notícias publicadas ({available.length})</h2>
-          {available.length === 0 ? <p className="mt-3 text-ink-soft">Todas as notícias publicadas já estão em destaque.</p> : null}
-          <ul className="mt-4 grid gap-2">
+        <Card title={`Outras publicadas (${available.length})`} description={<>Os rascunhos não aparecem aqui. <Link to="/admin/noticias" className="text-blue-600 hover:underline">Gerir notícias</Link></>}>
+          {available.length === 0 ? <EmptyState title="Todas as notícias publicadas já estão no carrossel." /> : null}
+          <ul className="grid gap-2">
             {available.map((p) => (
-              <li key={p.id} className="flex flex-wrap items-center gap-3 rounded-xl p-2.5 ring-1 ring-ink/10">
-                <img src={p.image} alt="" className="h-12 w-16 shrink-0 rounded-md object-cover" />
-                <div className="min-w-0 flex-1 basis-32">
-                  <p className="truncate font-semibold">{p.title}</p>
-                  <p className="text-xs text-ink-soft">{formatDate(p.publishedAt)}</p>
+              <li key={p.id} className="flex items-center gap-3 rounded-xl border border-zinc-200 p-2.5">
+                {thumb(p)}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[15px] font-medium text-zinc-900">{p.title}</p>
+                  <p className="text-[13px] text-zinc-500">{formatDate(p.publishedAt)}</p>
                 </div>
                 <Button tone="secondary" small aria-label={`Destacar «${p.title}»`} onClick={() => setIds([...ids, p.id])}>
-                  Destacar
+                  <Plus size={14} weight="bold" aria-hidden /> Adicionar
                 </Button>
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-sm text-ink-soft">
-            Os rascunhos não podem ser destacados. <Link to="/admin/noticias" className="underline">Gerir notícias</Link>
-          </p>
         </Card>
       </div>
+      <SaveBar visible={dirty} busy={busy} onSave={() => void save()} onDiscard={() => setIds(saved)} />
     </>
   );
 }

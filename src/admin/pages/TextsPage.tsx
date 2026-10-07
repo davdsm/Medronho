@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowCounterClockwise, ArrowDown, ArrowSquareOut, ArrowUp, Plus, X } from "@phosphor-icons/react";
 import { api, ApiError } from "../../lib/api";
-import { Badge, Button, Card, ErrorBox, PageHeader, Spinner, TextArea, TextInput, useToast, useUnsavedWarning } from "../ui";
+import { Badge, Button, Card, ErrorBox, IconButton, PageHeader, SaveBar, SectionNav, Spinner, TextArea, TextInput, inputClass, useToast, useUnsavedWarning } from "../ui";
 
 type Value = string | string[];
 type Field = {
@@ -25,7 +26,6 @@ export function TextsPage() {
   const [fields, setFields] = useState<Field[] | null>(null);
   const [drafts, setDrafts] = useState<Record<string, Value>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [active, setActive] = useState<string>("home");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -40,62 +40,60 @@ export function TextsPage() {
   }, []);
   useEffect(load, [load]);
 
-  const dirtyKeys = useMemo(
-    () => (fields ?? []).filter((f) => f.key in drafts && !eq(drafts[f.key]!, f.value)).map((f) => f.key),
-    [fields, drafts],
-  );
+  const dirtyKeys = useMemo(() => (fields ?? []).filter((f) => f.key in drafts && !eq(drafts[f.key]!, f.value)).map((f) => f.key), [fields, drafts]);
   useUnsavedWarning(dirtyKeys.length > 0);
+
+  const navItems = useMemo(
+    () => groups.map((g) => ({ id: `grupo-${g.id}`, label: g.label, flag: (fields ?? []).some((f) => f.group === g.id && dirtyKeys.includes(f.key)) })),
+    [groups, fields, dirtyKeys],
+  );
 
   if (loadError) return <ErrorBox>{loadError}</ErrorBox>;
   if (!fields) return <Spinner />;
 
-  const group = groups.find((g) => g.id === active) ?? groups[0]!;
-  const groupFields = fields.filter((f) => f.group === group.id);
-  const groupDirty = groupFields.filter((f) => dirtyKeys.includes(f.key));
-
   const current = (f: Field): Value => (f.key in drafts ? drafts[f.key]! : f.value);
   const setDraft = (f: Field, v: Value) => {
-    setDrafts({ ...drafts, [f.key]: v });
-    if (errors[f.key]) setErrors({ ...errors, [f.key]: "" });
+    setDrafts((d) => ({ ...d, [f.key]: v }));
+    if (errors[f.key]) setErrors((e) => ({ ...e, [f.key]: "" }));
   };
-
   const apply = (updated: Field) => setFields((cur) => cur!.map((f) => (f.key === updated.key ? updated : f)));
+  const dropDraft = (key: string) =>
+    setDrafts((d) => {
+      const { [key]: _gone, ...rest } = d;
+      return rest;
+    });
 
-  async function saveGroup() {
+  async function saveKeys(keys: string[]) {
     setBusy(true);
-    const nextErrors = { ...errors };
+    const nextErrors: Record<string, string> = {};
     let failed = 0;
-    for (const f of groupDirty) {
-      const raw = drafts[f.key]!;
+    for (const key of keys) {
+      const raw = drafts[key]!;
       const value = Array.isArray(raw) ? raw.map((s) => s.trim()).filter(Boolean) : raw;
       try {
-        const { field } = await api<{ field: Field }>("PUT", `/admin/content/${f.key}`, { value });
+        const { field } = await api<{ field: Field }>("PUT", `/admin/content/${key}`, { value });
         apply(field);
-        setDrafts((d) => {
-          const { [f.key]: _gone, ...rest } = d;
-          return rest;
-        });
-        nextErrors[f.key] = "";
+        dropDraft(key);
       } catch (e) {
         failed++;
-        nextErrors[f.key] = e instanceof ApiError ? e.message : "Erro ao guardar.";
+        nextErrors[key] = e instanceof ApiError ? (e.fields?.value ?? e.message) : "Erro ao guardar.";
       }
     }
-    setErrors(nextErrors);
+    setErrors((prev) => ({ ...prev, ...Object.fromEntries(keys.map((k) => [k, nextErrors[k] ?? ""])) }));
     setBusy(false);
-    if (failed) toast("error", `${failed} campo(s) não foram guardados. Veja os avisos a vermelho.`);
-    else toast("ok", "Textos guardados.");
+    if (failed) {
+      toast("error", `${failed} texto(s) não foram guardados. Veja os avisos a vermelho.`);
+      const first = keys.find((k) => nextErrors[k]);
+      if (first) document.getElementById(`campo-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else toast("ok", keys.length === 1 ? "Texto guardado." : "Textos guardados.");
   }
 
   async function reset(f: Field) {
     try {
       const { field } = await api<{ field: Field }>("DELETE", `/admin/content/${f.key}`);
       apply(field);
-      setDrafts((d) => {
-        const { [f.key]: _gone, ...rest } = d;
-        return rest;
-      });
-      setErrors({ ...errors, [f.key]: "" });
+      dropDraft(f.key);
+      setErrors((e) => ({ ...e, [f.key]: "" }));
       toast("ok", "Texto reposto.");
     } catch (e) {
       toast("error", e instanceof ApiError ? e.message : "Não foi possível repor.");
@@ -104,85 +102,97 @@ export function TextsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Textos do site"
-        intro="Edite os textos das páginas. «Repor original» volta ao texto que o site tinha de origem."
-        actions={
-          <>
-            <a href={group.path} target="_blank" rel="noopener noreferrer">
-              <Button tone="secondary">Ver página ↗</Button>
-            </a>
-            <Button onClick={() => void saveGroup()} disabled={groupDirty.length === 0 || busy}>
-              {busy ? "A guardar…" : `Guardar${groupDirty.length ? ` (${groupDirty.length})` : ""}`}
-            </Button>
-          </>
-        }
+      <PageHeader title="Textos do site" intro="Edite os textos de cada página. Pode sempre voltar ao texto original com «Repor original»." />
+      <div className="flex gap-10">
+        <div className="grid min-w-0 flex-1 gap-6">
+          {groups.map((g) => {
+            const gf = fields.filter((f) => f.group === g.id);
+            const gDirty = gf.filter((f) => dirtyKeys.includes(f.key)).map((f) => f.key);
+            return (
+              <Card
+                key={g.id}
+                id={`grupo-${g.id}`}
+                title={g.label}
+                actions={
+                  <>
+                    <a href={g.path} target="_blank" rel="noopener noreferrer" className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900">
+                      Ver página <ArrowSquareOut size={14} aria-hidden />
+                    </a>
+                    <Button small onClick={() => void saveKeys(gDirty)} disabled={gDirty.length === 0 || busy}>
+                      Guardar{gDirty.length ? ` (${gDirty.length})` : ""}
+                    </Button>
+                  </>
+                }
+              >
+                <div className="grid gap-8">
+                  {gf.map((f) => (
+                    <FieldEditor
+                      key={f.key}
+                      field={f}
+                      value={current(f)}
+                      error={errors[f.key]}
+                      dirty={dirtyKeys.includes(f.key)}
+                      onChange={(v) => setDraft(f, v)}
+                      onReset={() => (f.modified ? void reset(f) : setDraft(f, f.default))}
+                    />
+                  ))}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+        <SectionNav items={navItems} />
+      </div>
+      <SaveBar
+        visible={dirtyKeys.length > 0}
+        busy={busy}
+        label={dirtyKeys.length === 1 ? "1 texto por guardar." : `${dirtyKeys.length} textos por guardar.`}
+        onSave={() => void saveKeys(dirtyKeys)}
+        onDiscard={() => {
+          setDrafts({});
+          setErrors({});
+        }}
       />
-      <div role="tablist" aria-label="Secções" className="mb-6 flex flex-wrap gap-1">
-        {groups.map((g) => {
-          const n = fields.filter((f) => f.group === g.id && dirtyKeys.includes(f.key)).length;
-          return (
-            <button
-              key={g.id}
-              role="tab"
-              type="button"
-              aria-selected={g.id === group.id}
-              onClick={() => setActive(g.id)}
-              className={`rounded-lg px-3.5 py-2 text-[15px] font-semibold ${g.id === group.id ? "bg-wine text-foam" : "bg-white text-ink ring-1 ring-ink/15 hover:bg-butter/40"}`}
-            >
-              {g.label}
-              {n ? <span className="ml-2 rounded-full bg-butter px-1.5 text-xs text-ink">{n}</span> : null}
-            </button>
-          );
-        })}
-      </div>
-      <div className="grid gap-5" role="tabpanel">
-        {groupFields.map((f) => {
-          const v = current(f);
-          const err = errors[f.key];
-          return (
-            <Card key={f.key} className="grid gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                {f.modified ? <Badge tone="yellow">Personalizado</Badge> : <Badge tone="gray">Original</Badge>}
-                {f.key in drafts && dirtyKeys.includes(f.key) ? <Badge tone="red">Por guardar</Badge> : null}
-                <span className="ml-auto" />
-                {f.modified || (f.key in drafts && !eq(drafts[f.key]!, f.default)) ? (
-                  <Button tone="ghost" small onClick={() => (f.modified ? void reset(f) : setDraft(f, f.default))}>
-                    Repor original
-                  </Button>
-                ) : null}
-              </div>
-              {f.type === "text" ? (
-                <TextInput label={f.label} help={f.help} error={err} value={v as string} maxLength={f.max} onChange={(e) => setDraft(f, e.target.value)} />
-              ) : null}
-              {f.type === "textarea" ? (
-                <TextArea label={f.label} help={f.help} error={err} value={v as string} maxLength={f.max} rows={4} onChange={(e) => setDraft(f, e.target.value)} />
-              ) : null}
-              {f.type === "paragraphs" ? (
-                <ListEditor field={f} value={v as string[]} error={err} multiline onChange={(x) => setDraft(f, x)} />
-              ) : null}
-              {f.type === "list" ? <ListEditor field={f} value={v as string[]} error={err} onChange={(x) => setDraft(f, x)} /> : null}
-            </Card>
-          );
-        })}
-      </div>
     </>
   );
 }
 
-function ListEditor({
-  field,
-  value,
+function FieldEditor({
+  field: f,
+  value: v,
   error,
-  multiline,
+  dirty,
   onChange,
+  onReset,
 }: {
   field: Field;
-  value: string[];
+  value: Value;
   error?: string;
-  multiline?: boolean;
-  onChange: (v: string[]) => void;
+  dirty: boolean;
+  onChange: (v: Value) => void;
+  onReset: () => void;
 }) {
+  const canReset = f.modified || !eq(v, f.default);
+  return (
+    <div id={`campo-${f.key}`} className="grid scroll-mt-28 gap-2">
+      {dirty || f.modified || canReset ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {dirty ? <Badge tone="blue">Por guardar</Badge> : f.modified ? <Badge tone="amber">Personalizado</Badge> : null}
+          {canReset ? (
+            <button type="button" onClick={onReset} className="ml-auto inline-flex items-center gap-1 text-[13px] text-zinc-500 hover:text-zinc-900">
+              <ArrowCounterClockwise size={14} aria-hidden /> Repor original
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      {f.type === "text" ? <TextInput label={f.label} help={f.help} error={error} value={v as string} maxLength={f.max} showCount onChange={(e) => onChange(e.target.value)} /> : null}
+      {f.type === "textarea" ? <TextArea label={f.label} help={f.help} error={error} value={v as string} maxLength={f.max} showCount rows={4} onChange={(e) => onChange(e.target.value)} /> : null}
+      {f.type === "paragraphs" || f.type === "list" ? <ListEditor field={f} value={v as string[]} error={error} multiline={f.type === "paragraphs"} onChange={onChange} /> : null}
+    </div>
+  );
+}
+
+function ListEditor({ field, value, error, multiline, onChange }: { field: Field; value: string[]; error?: string; multiline?: boolean; onChange: (v: string[]) => void }) {
   const max = field.maxItems ?? 20;
   const update = (i: number, text: string) => onChange(value.map((x, idx) => (idx === i ? text : x)));
   const move = (i: number, d: -1 | 1) => {
@@ -193,55 +203,45 @@ function ListEditor({
     onChange(next);
   };
   return (
-    <fieldset className="grid gap-3">
-      <legend className="text-sm font-semibold text-ink">{field.label}</legend>
-      {field.help ? <p className="-mt-1 text-[13px] text-ink-soft">{field.help}</p> : null}
+    <fieldset className="grid gap-2.5">
+      <legend className="mb-1.5 flex w-full items-baseline justify-between text-sm text-zinc-500">
+        <span>{field.label}</span>
+        <span className="text-xs text-zinc-400 tabular-nums">
+          {value.length} / {max}
+        </span>
+      </legend>
       {value.map((item, i) => (
         <div key={i} className="flex items-start gap-2">
-          <span className="mt-2.5 w-5 shrink-0 text-right text-sm font-semibold text-ink-soft">{i + 1}.</span>
+          <span className="mt-3 w-5 shrink-0 text-right text-[13px] text-zinc-400 tabular-nums">{i + 1}</span>
           {multiline ? (
-            <textarea
-              aria-label={`${field.label}, item ${i + 1}`}
-              value={item}
-              rows={5}
-              maxLength={field.max}
-              onChange={(e) => update(i, e.target.value)}
-              className="min-w-0 flex-1 rounded-lg border border-ink/20 bg-white px-3 py-2.5 text-[15px] leading-relaxed focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/20"
-            />
+            <textarea aria-label={`${field.label}, item ${i + 1}`} value={item} rows={5} maxLength={field.max} onChange={(e) => update(i, e.target.value)} className={`${inputClass} h-auto min-w-0 flex-1 py-2.5 leading-relaxed`} />
           ) : (
-            <input
-              aria-label={`${field.label}, item ${i + 1}`}
-              value={item}
-              maxLength={field.max}
-              onChange={(e) => update(i, e.target.value)}
-              className="min-w-0 flex-1 rounded-lg border border-ink/20 bg-white px-3 py-2.5 text-[15px] focus:border-wine focus:outline-none focus:ring-2 focus:ring-wine/20"
-            />
+            <input aria-label={`${field.label}, item ${i + 1}`} value={item} maxLength={field.max} onChange={(e) => update(i, e.target.value)} className={`${inputClass} min-w-0 flex-1`} />
           )}
-          <div className="flex shrink-0 flex-col gap-1 sm:flex-row">
-            <Button tone="secondary" small aria-label="Subir" disabled={i === 0} onClick={() => move(i, -1)}>
-              ↑
-            </Button>
-            <Button tone="secondary" small aria-label="Descer" disabled={i === value.length - 1} onClick={() => move(i, 1)}>
-              ↓
-            </Button>
-            <Button tone="ghost" small className="!text-berry" aria-label="Remover" onClick={() => onChange(value.filter((_, idx) => idx !== i))}>
-              ✕
-            </Button>
+          <div className={`flex shrink-0 ${multiline ? "flex-col" : ""} pt-1.5`}>
+            <IconButton label={`Subir item ${i + 1}`} disabled={i === 0} onClick={() => move(i, -1)}>
+              <ArrowUp size={16} aria-hidden />
+            </IconButton>
+            <IconButton label={`Descer item ${i + 1}`} disabled={i === value.length - 1} onClick={() => move(i, 1)}>
+              <ArrowDown size={16} aria-hidden />
+            </IconButton>
+            <IconButton label={`Remover item ${i + 1}`} onClick={() => onChange(value.filter((_, idx) => idx !== i))} className="hover:!bg-red-50 hover:!text-red-600">
+              <X size={16} aria-hidden />
+            </IconButton>
           </div>
         </div>
       ))}
-      <div>
+      <div className="pl-7">
         <Button tone="secondary" small disabled={value.length >= max} onClick={() => onChange([...value, ""])}>
-          + Adicionar
+          <Plus size={14} weight="bold" aria-hidden /> Adicionar {multiline ? "parágrafo" : "item"}
         </Button>
-        <span className="ml-3 text-[13px] text-ink-soft">
-          {value.length} / {max}
-        </span>
       </div>
       {error ? (
-        <p role="alert" className="text-[13px] font-medium text-berry">
+        <p role="alert" className="pl-7 text-[13px] text-red-600">
           {error}
         </p>
+      ) : field.help ? (
+        <p className="pl-7 text-[13px] text-zinc-500">{field.help}</p>
       ) : null}
     </fieldset>
   );
