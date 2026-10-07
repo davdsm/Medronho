@@ -45,7 +45,7 @@ export function Nav() {
               alt="UNEDO4ALL"
               width={619}
               height={103}
-              className="block h-6 w-auto"
+              className="block h-[18px] w-auto"
             />
           </Link>
           <div className="hidden items-center min-[960px]:flex">
