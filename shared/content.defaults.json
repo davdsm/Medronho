@@ -1,0 +1,252 @@
+{
+  "groups": [
+    {
+      "id": "home",
+      "label": "Página inicial",
+      "path": "/"
+    },
+    {
+      "id": "about",
+      "label": "Sobre",
+      "path": "/sobre"
+    },
+    {
+      "id": "consortium",
+      "label": "Consórcio",
+      "path": "/consorcio"
+    },
+    {
+      "id": "news",
+      "label": "Notícias",
+      "path": "/noticias"
+    },
+    {
+      "id": "footer",
+      "label": "Rodapé",
+      "path": "/"
+    }
+  ],
+  "fields": [
+    {
+      "key": "home.hero.intro",
+      "group": "home",
+      "label": "Texto de abertura",
+      "type": "textarea",
+      "default": "O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para conservação e valorização do medronho (Arbutus unedo).",
+      "help": "Aparece no topo da página inicial, por baixo da palavra «medronho».",
+      "max": 400
+    },
+    {
+      "key": "home.marquee.words",
+      "group": "home",
+      "label": "Palavras em movimento",
+      "type": "list",
+      "default": [
+        "medronheiro",
+        "outono",
+        "Beira Baixa",
+        "vermelho",
+        "outubro",
+        "janeiro"
+      ],
+      "help": "Faixa de palavras que corre na página inicial.",
+      "max": 40,
+      "maxItems": 12
+    },
+    {
+      "key": "home.feature1.eyebrow",
+      "group": "home",
+      "label": "Bloco 1 — etiqueta",
+      "type": "text",
+      "default": "No ramo",
+      "max": 40
+    },
+    {
+      "key": "home.feature1.title",
+      "group": "home",
+      "label": "Bloco 1 — título",
+      "type": "text",
+      "default": "Flor e fruto ao mesmo tempo.",
+      "max": 120
+    },
+    {
+      "key": "home.feature1.copy",
+      "group": "home",
+      "label": "Bloco 1 — texto",
+      "type": "textarea",
+      "default": "No medronheiro isto é normal. Enquanto um fruto está a ficar vermelho, a árvore já está a florir para o ano a seguir.",
+      "max": 400
+    },
+    {
+      "key": "home.feature2.eyebrow",
+      "group": "home",
+      "label": "Bloco 2 — etiqueta",
+      "type": "text",
+      "default": "O tempo",
+      "max": 40
+    },
+    {
+      "key": "home.feature2.title",
+      "group": "home",
+      "label": "Bloco 2 — título",
+      "type": "text",
+      "default": "Demora cerca de um ano.",
+      "max": 120
+    },
+    {
+      "key": "home.feature2.copy",
+      "group": "home",
+      "label": "Bloco 2 — texto",
+      "type": "textarea",
+      "default": "Não fica maduro de um dia para o outro. A apanha começa em outubro e vai até janeiro.",
+      "max": 400
+    },
+    {
+      "key": "home.feature3.eyebrow",
+      "group": "home",
+      "label": "Bloco 3 — etiqueta",
+      "type": "text",
+      "default": "A apanha",
+      "max": 40
+    },
+    {
+      "key": "home.feature3.title",
+      "group": "home",
+      "label": "Bloco 3 — título",
+      "type": "text",
+      "default": "Está bom quando cede.",
+      "max": 120
+    },
+    {
+      "key": "home.feature3.copy",
+      "group": "home",
+      "label": "Bloco 3 — texto",
+      "type": "textarea",
+      "default": "Carrega-se com o dedo. Se ainda está duro, fica na árvore. Se cede, está pronto para apanhar.",
+      "max": 400
+    },
+    {
+      "key": "home.consortium.text",
+      "group": "home",
+      "label": "Resumo do consórcio",
+      "type": "textarea",
+      "default": "O UNEDO4ALL reúne oito copromotores, maioritariamente do Centro do país, para estudar e desenvolver novos processos de conservação e valorização do medronho no setor alimentar.",
+      "help": "Secção «O consórcio» da página inicial.",
+      "max": 500
+    },
+    {
+      "key": "about.subtitle",
+      "group": "about",
+      "label": "Subtítulo",
+      "type": "textarea",
+      "default": "Estratégias inovadoras para conservação e valorização integral do Arbutus unedo na indústria alimentar.",
+      "max": 300
+    },
+    {
+      "key": "about.paragraphs",
+      "group": "about",
+      "label": "Parágrafos de apresentação",
+      "type": "paragraphs",
+      "default": [
+        "O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para conservação e valorização do medronho (Arbutus unedo), visando ampliar significativamente a sua utilização no setor alimentar de forma sustentável. O projeto prevê atividades de investigação industrial e desenvolvimento experimental que visam desenvolver processos inovadores para conservação do fruto fresco e permitir a sua colocação no mercado de frutos vermelhos de inverno; bem como processos inovadores para extração de compostos bioativos e seleção de novas estirpes fermentadoras da microbiota do medronho, visando o desenvolvimento sustentável de diferentes tipologias de produtos alimentares à base de medronho.",
+        "Os resultados esperados incluem novos produtos diferenciados, como preparados de medronho para pastelaria, concentrado e sumo de medronho, fermentado não alcoólico e desidratado de medronho e de kombucha de medronho. A estratégia de disseminação do projeto integra ações como participação em feiras e conferências, criação de um website, publicação de resultados técnicos e científicos e demonstrações gastronómicas, visando fortalecer a valorização do medronho e impulsionar o seu reconhecimento nos mercados-alvo."
+      ],
+      "help": "Cada item é um parágrafo.",
+      "max": 2500,
+      "maxItems": 8
+    },
+    {
+      "key": "about.objectives",
+      "group": "about",
+      "label": "Objetivos",
+      "type": "list",
+      "default": [
+        "Desenvolver processos inovadores para conservação do fruto fresco do medronho;",
+        "Desenvolver processos inovadores de extração de compostos bioativos;",
+        "Selecionar novas estirpes fermentadoras da microbiota do medronho;",
+        "Desenvolver, de forma sustentável, diferentes tipologias de produtos alimentares à base de medronho: preparados para pastelaria, concentrado e sumo, fermentado não alcoólico e desidratados, incluindo kombucha desidratada."
+      ],
+      "help": "Cada item é uma linha da lista de objetivos.",
+      "max": 500,
+      "maxItems": 15
+    },
+    {
+      "key": "about.operation.code",
+      "group": "about",
+      "label": "Ficha de operação — código",
+      "type": "text",
+      "default": "COMPETE2030-FEDER-02044600",
+      "max": 80
+    },
+    {
+      "key": "about.operation.promoter",
+      "group": "about",
+      "label": "Ficha de operação — promotor",
+      "type": "text",
+      "default": "Decorgel - Produtos Alimentares, S.A.",
+      "max": 120
+    },
+    {
+      "key": "about.operation.total",
+      "group": "about",
+      "label": "Ficha de operação — custo total",
+      "type": "text",
+      "default": "1.100.731,53 €",
+      "max": 40
+    },
+    {
+      "key": "about.operation.support",
+      "group": "about",
+      "label": "Ficha de operação — apoio financeiro da UE",
+      "type": "text",
+      "default": "895.555,69 €",
+      "max": 40
+    },
+    {
+      "key": "about.operation.rate",
+      "group": "about",
+      "label": "Ficha de operação — taxa de cofinanciamento",
+      "type": "text",
+      "default": "81%",
+      "max": 20
+    },
+    {
+      "key": "consortium.subtitle",
+      "group": "consortium",
+      "label": "Subtítulo",
+      "type": "text",
+      "default": "Oito copromotores, maioritariamente do Centro do país.",
+      "max": 200
+    },
+    {
+      "key": "consortium.paragraphs",
+      "group": "consortium",
+      "label": "Parágrafos de apresentação",
+      "type": "paragraphs",
+      "default": [
+        "O consórcio do projeto UNEDO4ALL é composto por um conjunto diversificado e complementar de entidades, incluindo 4 Entidades do Sistema Nacional de Investigação e Inovação (ENESII) e 4 empresas do setor privado, que contam com especialistas em investigação científica, desenvolvimento tecnológico, produção, transformação e comercialização de produtos alimentares.",
+        "Destaca-se que as entidades ENESII envolvidas (ULO, CATAA, TAGUSVALLEY e SerQ) aportam conhecimentos avançados em áreas como caracterização físico-química, microbiologia, processos de extração sustentáveis, análise de vida útil e viabilidade técnica e económica dos novos produtos à base de medronho a desenvolver no projeto, assegurando o rigor científico e técnico das tarefas previstas no projeto. Por outro lado, as empresas participantes (Decorgel, Sõsu Kombucha, Medronho & Canela, Santos & Marçal) possuem experiência prática e capacidade de implementação industrial, incluindo a produção primária, transformação de alimentos e inserção de novos produtos no mercado, o que assegura a viabilidade prática e a orientação para o mercado dos resultados gerados no projeto. O presente consórcio está assim preparado para abordar de forma integrada e eficiente os desafios associados à conservação, valorização e inovação na utilização do medronho."
+      ],
+      "help": "Cada item é um parágrafo.",
+      "max": 2500,
+      "maxItems": 8
+    },
+    {
+      "key": "news.intro",
+      "group": "news",
+      "label": "Introdução da página de notícias",
+      "type": "textarea",
+      "default": "Textos das casas sobre a colheita, o doce e o que se passa à quinta-feira.",
+      "help": "Frase por baixo do título «Notícias».",
+      "max": 300
+    },
+    {
+      "key": "footer.tagline",
+      "group": "footer",
+      "label": "Frase do rodapé",
+      "type": "textarea",
+      "default": "Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar",
+      "max": 300
+    }
+  ]
+}
