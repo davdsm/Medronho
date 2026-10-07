@@ -26,16 +26,41 @@ export function Footer() {
         </nav>
       </div>
       <div className="mx-auto max-w-[1400px] px-5 pt-10 md:px-10">
-        <div className="rounded-[1.25rem] bg-white px-4 py-3 md:px-8 md:py-4">
-          <img
-            src="/funding/barra-financiamento.png"
-            alt="COMPETE 2030, Portugal 2030 e Cofinanciado pela União Europeia"
-            width={1595}
-            height={290}
-            className="mx-auto h-auto w-full max-w-[760px]"
-            loading="lazy"
-          />
-        </div>
+        <ul
+          className="flex flex-wrap items-center justify-start gap-x-8 gap-y-5 md:gap-x-12"
+          aria-label="Financiamento"
+        >
+          <li>
+            <img
+              src="/funding/compete2030-branco.png"
+              alt="COMPETE 2030"
+              width={460}
+              height={260}
+              className="h-14 w-auto md:h-20"
+              loading="lazy"
+            />
+          </li>
+          <li>
+            <img
+              src="/funding/portugal2030-branco.png"
+              alt="Portugal 2030"
+              width={512}
+              height={190}
+              className="h-10 w-auto md:h-14"
+              loading="lazy"
+            />
+          </li>
+          <li>
+            <img
+              src="/funding/ue-cofinanciado-branco.png"
+              alt="Cofinanciado pela União Europeia"
+              width={789}
+              height={170}
+              className="h-9 w-auto md:h-12"
+              loading="lazy"
+            />
+          </li>
+        </ul>
       </div>
       <div className="mx-auto max-w-[1400px] px-5 pt-8 text-sm text-foam-soft md:px-10">
         <p>2026</p>
