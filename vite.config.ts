@@ -56,6 +56,8 @@ ${urls}
     const robots = `# UNEDO4ALL
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 User-agent: Twitterbot
 Allow: /
@@ -88,7 +90,15 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const siteUrl = env.VITE_SITE_URL || "https://medronho.vercel.app";
 
+  const apiTarget = env.VITE_API_PROXY || "http://localhost:3001";
+
   return {
+    server: {
+      proxy: {
+        "/api": { target: apiTarget, changeOrigin: false },
+        "/uploads": { target: apiTarget, changeOrigin: false },
+      },
+    },
     plugins: [
       react(),
       tailwindcss(),

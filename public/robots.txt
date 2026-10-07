@@ -1,6 +1,8 @@
 # UNEDO4ALL
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 User-agent: Twitterbot
 Allow: /

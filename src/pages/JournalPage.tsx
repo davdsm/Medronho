@@ -1,10 +1,13 @@
 import { Link } from "react-router";
-import { posts } from "../data";
+import { usePosts, useText } from "../content";
+import { formatDate } from "../lib/types";
 import { ParallaxMedia } from "../components/Parallax";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { breadcrumbJsonLd, organizationJsonLd, useSeo, websiteJsonLd } from "../seo";
 
 export function JournalPage() {
+  const { posts } = usePosts();
+  const intro = useText("news.intro");
   useSeo({
     title: "Notícias",
     description:
@@ -43,7 +46,7 @@ export function JournalPage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-5 max-w-[42ch] text-lg leading-relaxed text-ink-soft" delay={0.2} hero>
-          Textos das casas sobre a colheita, o doce e o que se passa à quinta-feira.
+          {intro}
         </FadeUp>
 
         {featured ? (
@@ -54,18 +57,18 @@ export function JournalPage() {
             >
               <ParallaxMedia
                 src={featured.image}
-                alt={featured.alt}
+                alt={featured.imageAlt}
                 className="aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] sm:aspect-[16/9] md:col-span-7"
                 strength={16}
               />
               <div className="md:col-span-5">
-                <p className="text-sm text-ink-soft">{featured.date}</p>
+                <p className="text-sm text-ink-soft">{formatDate(featured.publishedAt)}</p>
                 <h2 className="mt-2 font-display text-[clamp(1.9rem,3.4vw,3.2rem)] leading-[1.05] tracking-[-0.03em] text-balance group-hover:underline group-hover:decoration-ink/30 group-hover:underline-offset-4">
                   {featured.title}
                 </h2>
                 <p className="mt-3 max-w-[42ch] text-lg leading-relaxed">{featured.excerpt}</p>
                 <p className="mt-3 text-ink-soft">
-                  {featured.author}, {featured.house}
+                  {featured.author}, {featured.category}
                 </p>
               </div>
             </Link>
@@ -78,18 +81,18 @@ export function JournalPage() {
               <Link to={`/noticias/${post.slug}`} className="group flex h-full flex-col gap-4">
                 <ParallaxMedia
                   src={post.image}
-                  alt={post.alt}
+                  alt={post.imageAlt}
                   className="aspect-[4/3] w-full overflow-hidden rounded-[1.25rem]"
                   strength={14}
                 />
                 <div className="flex flex-1 flex-col">
-                  <p className="text-sm text-ink-soft">{post.date}</p>
+                  <p className="text-sm text-ink-soft">{formatDate(post.publishedAt)}</p>
                   <h2 className="mt-2 font-display text-[clamp(1.55rem,2.4vw,2.1rem)] leading-[1.1] tracking-[-0.03em] text-balance group-hover:underline group-hover:decoration-ink/30 group-hover:underline-offset-4">
                     {post.title}
                   </h2>
                   <p className="mt-3 text-base leading-relaxed text-ink-soft md:text-lg">{post.excerpt}</p>
                   <p className="mt-auto pt-3 text-sm text-ink-soft">
-                    {post.author}, {post.house}
+                    {post.author}, {post.category}
                   </p>
                 </div>
               </Link>

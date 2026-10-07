@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -9,6 +9,7 @@ import {
   useParams,
 } from "react-router";
 import { BerryCanvas, BerryGuard } from "./components/Berry";
+import { SiteDataProvider } from "./content";
 import { Intro } from "./components/Intro";
 import { Footer } from "./components/Footer";
 import { Nav } from "./components/Nav";
@@ -141,10 +142,29 @@ function Shell() {
   );
 }
 
+const AdminApp = lazy(() => import("./admin/AdminApp"));
+
 export default function App() {
   return (
     <BrowserRouter>
-      <Shell />
+      <Routes>
+        <Route
+          path="/admin/*"
+          element={
+            <Suspense fallback={null}>
+              <AdminApp />
+            </Suspense>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <SiteDataProvider>
+              <Shell />
+            </SiteDataProvider>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

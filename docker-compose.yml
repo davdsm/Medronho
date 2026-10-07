@@ -1,0 +1,44 @@
+# UNEDO4ALL — site + backoffice, tudo local.
+#   docker compose up --build
+# Site:        http://localhost:8080
+# Backoffice:  http://localhost:8080/admin
+services:
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Primeiro administrador (só é usado se ainda não existir nenhum utilizador).
+      # Se ADMIN_PASSWORD estiver vazio, é gerada uma palavra-passe e aparece nos logs: docker compose logs api
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@unedo4all.local}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Se vazio, é gerado e guardado no volume de dados.
+      JWT_SECRET: ${JWT_SECRET:-}
+      SITE_URL: ${SITE_URL:-http://localhost:8080}
+      # true quando o site for servido em HTTPS.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      - unedo-data:/data
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_SITE_URL: ${SITE_URL:-http://localhost:8080}
+    restart: unless-stopped
+    environment:
+      API_URL: http://api:3001
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+
+volumes:
+  unedo-data:

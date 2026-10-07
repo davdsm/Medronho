@@ -5,6 +5,7 @@ import { PartnerLogos } from "../components/PartnerLogos";
 import { Pill } from "../components/Pill";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { Story } from "../components/Story";
+import { usePosts, useText } from "../content";
 import {
   breadcrumbJsonLd,
   getSiteUrl,
@@ -15,6 +16,8 @@ import {
 } from "../seo";
 
 export function HomePage() {
+  const { featured } = usePosts();
+  const consortiumText = useText("home.consortium.text");
   const origin = getSiteUrl();
   useSeo({
     title: SITE.titleDefault,
@@ -61,7 +64,7 @@ export function HomePage() {
           </FadeUp>
           <FadeUp className="md:col-span-7" delay={0.12}>
             <p className="max-w-[46ch] text-lg leading-relaxed">
-              O UNEDO4ALL reúne oito copromotores, maioritariamente do Centro do país, para estudar e desenvolver novos processos de conservação e valorização do medronho no setor alimentar.
+              {consortiumText}
             </p>
             <div className="mt-6">
               <Pill to="/consorcio">Sobre o consórcio</Pill>
@@ -78,6 +81,7 @@ export function HomePage() {
         </div>
       </section>
 
+      {featured.length > 0 ? (
       <section id="noticias-home" className="overflow-hidden bg-wine py-20 text-foam md:py-28">
         <div className="news-edge mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <FadeUp>
@@ -98,6 +102,7 @@ export function HomePage() {
           <NewsCarousel />
         </FadeUp>
       </section>
+      ) : null}
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { partners, posts } from "./data";
+import { partners } from "./data";
 
 const FALLBACK_SITE_URL = "https://medronho.vercel.app";
 
@@ -72,31 +72,6 @@ export type SeoInput = {
   section?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 };
-
-const PT_MONTHS: Record<string, string> = {
-  jan: "01",
-  fev: "02",
-  mar: "03",
-  abr: "04",
-  mai: "05",
-  jun: "06",
-  jul: "07",
-  ago: "08",
-  set: "09",
-  out: "10",
-  nov: "11",
-  dez: "12",
-};
-
-/** Parse labels like "12 Nov 2025" into ISO dates. */
-export function parsePtDate(label: string): string | undefined {
-  const match = label.trim().match(/^(\d{1,2})\s+([A-Za-zçÇãÃ]+)\s+(\d{4})$/);
-  if (!match) return undefined;
-  const day = match[1].padStart(2, "0");
-  const month = PT_MONTHS[match[2].slice(0, 3).toLowerCase()];
-  if (!month) return undefined;
-  return `${match[3]}-${month}-${day}`;
-}
 
 function absUrl(pathOrUrl: string, origin = getSiteUrl()) {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
@@ -360,10 +335,4 @@ export function useSeo(input: SeoInput = {}) {
 /** Backward-compatible page helper used across routes. */
 export function usePage(title: string, description?: string, path?: string) {
   useSeo({ title, description, path });
-}
-
-export function sitemapPaths() {
-  const staticPaths = ["/", "/consorcio", "/noticias", "/privacidade", "/termos"];
-  const articlePaths = posts.map((post) => `/noticias/${post.slug}`);
-  return [...staticPaths, ...articlePaths];
 }

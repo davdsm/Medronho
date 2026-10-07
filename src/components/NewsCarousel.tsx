@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-import { posts } from "../data";
+import { usePosts } from "../content";
+import { formatDate } from "../lib/types";
 
 function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
   return (
@@ -25,6 +26,7 @@ function ArrowIcon({ direction }: { direction: "prev" | "next" }) {
 
 /** Free horizontal scroller — native touch, light desktop drag, no snap fighting. */
 export function NewsCarousel() {
+  const { featured: posts } = usePosts();
   const scroller = useRef<HTMLUListElement>(null);
   const drag = useRef({
     active: false,
@@ -191,13 +193,13 @@ export function NewsCarousel() {
               <div className="aspect-[4/3] w-full overflow-hidden rounded-[1.25rem]">
                 <img
                   src={post.image}
-                  alt={post.alt}
+                  alt={post.imageAlt}
                   className="h-full w-full object-cover"
                   loading="lazy"
                   draggable={false}
                 />
               </div>
-              <p className="mt-4 text-sm text-foam-soft">{post.date}</p>
+              <p className="mt-4 text-sm text-foam-soft">{formatDate(post.publishedAt)}</p>
               <h3 className="mt-1 font-display text-[clamp(1.6rem,2.5vw,2.2rem)] leading-[1.1] tracking-[-0.03em] group-hover:underline">
                 {post.title}
               </h3>

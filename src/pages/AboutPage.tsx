@@ -1,33 +1,23 @@
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import { Pill } from "../components/Pill";
-import { Species, withSpecies } from "../components/Species";
+import { withSpecies } from "../components/Species";
+import { useList, useText } from "../content";
 import { breadcrumbJsonLd, organizationJsonLd, useSeo, websiteJsonLd } from "../seo";
 
 const projectName =
   "UNEDO4ALL — Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar";
 
-const projectCopy = [
-  "O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para conservação e valorização do medronho (Arbutus unedo), visando ampliar significativamente a sua utilização no setor alimentar de forma sustentável. O projeto prevê atividades de investigação industrial e desenvolvimento experimental que visam desenvolver processos inovadores para conservação do fruto fresco e permitir a sua colocação no mercado de frutos vermelhos de inverno; bem como processos inovadores para extração de compostos bioativos e seleção de novas estirpes fermentadoras da microbiota do medronho, visando o desenvolvimento sustentável de diferentes tipologias de produtos alimentares à base de medronho.",
-  "Os resultados esperados incluem novos produtos diferenciados, como preparados de medronho para pastelaria, concentrado e sumo de medronho, fermentado não alcoólico e desidratado de medronho e de kombucha de medronho. A estratégia de disseminação do projeto integra ações como participação em feiras e conferências, criação de um website, publicação de resultados técnicos e científicos e demonstrações gastronómicas, visando fortalecer a valorização do medronho e impulsionar o seu reconhecimento nos mercados-alvo.",
-];
-
-// Objetivos conforme a Ficha de Operação; substituir pelos objetivos específicos do anexo técnico (pág. 5).
-const objectives = [
-  "Desenvolver processos inovadores para conservação do fruto fresco do medronho;",
-  "Desenvolver processos inovadores de extração de compostos bioativos;",
-  "Selecionar novas estirpes fermentadoras da microbiota do medronho;",
-  "Desenvolver, de forma sustentável, diferentes tipologias de produtos alimentares à base de medronho: preparados para pastelaria, concentrado e sumo, fermentado não alcoólico e desidratados, incluindo kombucha desidratada.",
-];
-
-const operation = [
-  { label: "Código da operação", value: "COMPETE2030-FEDER-02044600" },
-  { label: "Promotor", value: "Decorgel - Produtos Alimentares, S.A." },
-  { label: "Custo total", value: "1.100.731,53 €" },
-  { label: "Apoio financeiro da UE", value: "895.555,69 €" },
-  { label: "Taxa de cofinanciamento", value: "81%" },
-];
-
 export function AboutPage() {
+  const subtitle = useText("about.subtitle");
+  const projectCopy = useList("about.paragraphs");
+  const objectives = useList("about.objectives");
+  const operation = [
+    { label: "Código da operação", value: useText("about.operation.code") },
+    { label: "Promotor", value: useText("about.operation.promoter") },
+    { label: "Custo total", value: useText("about.operation.total") },
+    { label: "Apoio financeiro da UE", value: useText("about.operation.support") },
+    { label: "Taxa de cofinanciamento", value: useText("about.operation.rate") },
+  ];
   useSeo({
     title: "Sobre o projeto",
     description:
@@ -63,7 +53,7 @@ export function AboutPage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-5 max-w-[48ch] text-lg text-ink-soft" delay={0.1} hero>
-          Estratégias inovadoras para conservação e valorização integral do <Species /> na indústria alimentar.
+          {withSpecies(subtitle)}
         </FadeUp>
 
         <div className="mt-8 grid max-w-[68ch] gap-5 text-lg leading-relaxed">

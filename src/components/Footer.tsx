@@ -1,6 +1,8 @@
 import { Link } from "react-router";
+import { useText } from "../content";
 
 export function Footer() {
+  const tagline = useText("footer.tagline");
   return (
     <footer className="bg-ink text-foam">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-5 pt-16 md:flex-row md:items-end md:justify-between md:px-10">
@@ -13,7 +15,7 @@ export function Footer() {
             className="block h-9 w-auto md:h-11"
           />
           <p className="mt-3 max-w-[44ch] text-foam-soft">
-            Estratégias inovadoras para conservação e valorização integral do Medronho na indústria alimentar
+            {tagline}
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-[15px] font-medium" aria-label="Rodapé">

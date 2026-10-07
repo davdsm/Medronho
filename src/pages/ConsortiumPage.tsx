@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { partners } from "../data";
 import { PartnerLogos } from "../components/PartnerLogos";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
-import { Species } from "../components/Species";
+import { Species, withSpecies } from "../components/Species";
+import { useList, useText } from "../content";
 import { breadcrumbJsonLd, organizationJsonLd, useSeo, websiteJsonLd } from "../seo";
 
 const facts: { label: string; value: ReactNode }[] = [
@@ -10,11 +11,6 @@ const facts: { label: string; value: ReactNode }[] = [
   { label: "Onde", value: "Maioritariamente no Centro" },
   { label: "Fruto", value: <Species /> },
   { label: "Foco", value: "Conservação e valorização" },
-];
-
-const projectCopy = [
-  "O consórcio do projeto UNEDO4ALL é composto por um conjunto diversificado e complementar de entidades, incluindo 4 Entidades do Sistema Nacional de Investigação e Inovação (ENESII) e 4 empresas do setor privado, que contam com especialistas em investigação científica, desenvolvimento tecnológico, produção, transformação e comercialização de produtos alimentares.",
-  "Destaca-se que as entidades ENESII envolvidas (ULO, CATAA, TAGUSVALLEY e SerQ) aportam conhecimentos avançados em áreas como caracterização físico-química, microbiologia, processos de extração sustentáveis, análise de vida útil e viabilidade técnica e económica dos novos produtos à base de medronho a desenvolver no projeto, assegurando o rigor científico e técnico das tarefas previstas no projeto. Por outro lado, as empresas participantes (Decorgel, Sõsu Kombucha, Medronho & Canela, Santos & Marçal) possuem experiência prática e capacidade de implementação industrial, incluindo a produção primária, transformação de alimentos e inserção de novos produtos no mercado, o que assegura a viabilidade prática e a orientação para o mercado dos resultados gerados no projeto. O presente consórcio está assim preparado para abordar de forma integrada e eficiente os desafios associados à conservação, valorização e inovação na utilização do medronho.",
 ];
 
 const groups = [
@@ -26,6 +22,8 @@ const groups = [
 ] as const;
 
 export function ConsortiumPage() {
+  const subtitle = useText("consortium.subtitle");
+  const projectCopy = useList("consortium.paragraphs");
   useSeo({
     title: "O consórcio",
     description:
@@ -62,12 +60,12 @@ export function ConsortiumPage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-5 text-lg text-ink-soft" delay={0.1} hero>
-          Oito copromotores, maioritariamente do Centro do país.
+          {withSpecies(subtitle)}
         </FadeUp>
         <div className="mt-8 grid max-w-[68ch] gap-5 text-lg leading-relaxed">
           {projectCopy.map((paragraph, index) => (
             <FadeUp as="p" key={paragraph.slice(0, 24)} delay={0.15 + index * 0.1} hero={index === 0}>
-              {paragraph}
+              {withSpecies(paragraph)}
             </FadeUp>
           ))}
         </div>

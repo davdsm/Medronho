@@ -1,12 +1,12 @@
 import { Link, useParams } from "react-router";
-import { getPost, posts } from "../data";
+import { usePosts } from "../content";
+import { formatDate } from "../lib/types";
 import { ParallaxMedia } from "../components/Parallax";
 import { FadeUp, SplitText, useArrive } from "../components/Reveal";
 import {
   breadcrumbJsonLd,
   getSiteUrl,
   organizationJsonLd,
-  parsePtDate,
   useSeo,
   websiteJsonLd,
 } from "../seo";
@@ -14,11 +14,13 @@ import { NotFound } from "./NotFound";
 
 export function ArticlePage() {
   const { slug } = useParams();
-  const post = slug ? getPost(slug) : undefined;
+  const { posts } = usePosts();
+  const post = slug ? posts.find((item) => item.slug === slug) : undefined;
   const index = posts.findIndex((item) => item.slug === slug);
-  const next = index >= 0 ? posts[(index + 1) % posts.length] : undefined;
+  const next = index >= 0 && posts.length > 1 ? posts[(index + 1) % posts.length] : undefined;
   const path = post ? `/noticias/${post.slug}` : "/noticias";
-  const published = post ? parsePtDate(post.date) : undefined;
+  const published = post?.publishedAt;
+  const modified = post?.updatedAt;
   const origin = getSiteUrl();
 
   useSeo(
@@ -29,7 +31,7 @@ export function ArticlePage() {
           path,
           type: "article",
           publishedTime: published,
-          modifiedTime: published,
+          modifiedTime: modified,
           author: post.author,
           section: "Notícias",
           jsonLd: [
@@ -41,14 +43,14 @@ export function ArticlePage() {
               description: post.excerpt,
               image: [`${origin}${post.image}`],
               datePublished: published,
-              dateModified: published,
+              dateModified: modified,
               author: {
                 "@type": "Person",
                 name: post.author,
               },
               publisher: { "@id": `${origin}/#organization` },
               mainEntityOfPage: `${origin}${path}`,
-              articleSection: post.house,
+              articleSection: post.category,
               inLanguage: "pt-PT",
             },
             breadcrumbJsonLd(
@@ -94,17 +96,17 @@ export function ArticlePage() {
           />
         </FadeUp>
         <FadeUp as="p" className="mt-4 text-lg text-ink-soft" delay={0.18} hero>
-          <span itemProp="author">{post.author}</span>, {post.house}
+          <span itemProp="author">{post.author}</span>, {post.category}
         </FadeUp>
         <FadeUp as="p" className="mt-1 text-ink-soft" delay={0.24} hero>
           <time dateTime={published} itemProp="datePublished">
-            {post.date}
+            {formatDate(post.publishedAt)}
           </time>
         </FadeUp>
         <FadeUp className="mt-8" delay={0.1}>
           <ParallaxMedia
             src={post.image}
-            alt={post.alt}
+            alt={post.imageAlt}
             className="aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] sm:aspect-[16/10]"
             strength={14}
           />

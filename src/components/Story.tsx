@@ -5,10 +5,9 @@ import { useReduced } from "../useReduced";
 import { BerryCanvas } from "./Berry";
 import { ParallaxMedia } from "./Parallax";
 import { Pill } from "./Pill";
-import { Species } from "./Species";
+import { useList, useSite, useText } from "../content";
 import { FadeUp, SplitText, useArrive } from "./Reveal";
-
-const words = ["medronheiro", "outono", "Beira Baixa", "vermelho", "outubro", "janeiro"];
+import { withSpecies } from "./Species";
 
 type Feature = {
   eyebrow: string;
@@ -23,28 +22,20 @@ type Feature = {
   dock?: "left" | "right" | "bottom-right";
 };
 
-const features: Feature[] = [
+/** Partes fixas de cada bloco (fotografias, posição da baga 3D); os textos vêm do backoffice. */
+const featureLayout: Array<Omit<Feature, "eyebrow" | "title" | "copy">> = [
   {
-    eyebrow: "No ramo",
-    title: "Flor e fruto ao mesmo tempo.",
-    copy: "No medronheiro isto é normal. Enquanto um fruto está a ficar vermelho, a árvore já está a florir para o ano a seguir.",
     image: "/photos/branch.jpg",
     alt: "Ramo de medronheiro com flor e fruto no mesmo ramo.",
     dock: "right",
   },
   {
-    eyebrow: "O tempo",
-    title: "Demora cerca de um ano.",
-    copy: "Não fica maduro de um dia para o outro. A apanha começa em outubro e vai até janeiro.",
     image: "/photos/hillside.jpg",
     alt: "Encosta da Beira Baixa no outono, com medronheiros a vermelhar.",
     flip: true,
     dock: "right",
   },
   {
-    eyebrow: "A apanha",
-    title: "Está bom quando cede.",
-    copy: "Carrega-se com o dedo. Se ainda está duro, fica na árvore. Se cede, está pronto para apanhar.",
     image: "/photos/harvest.jpg",
     alt: "Mãos a escolher medronhos maduros pelo toque.",
     inset: "/photos/basket.jpg",
@@ -289,6 +280,15 @@ function FeatureBlock({ feature, index }: { feature: Feature; index: number }) {
 
 export function Story() {
   const reduced = useReduced();
+  const words = useList("home.marquee.words");
+  const intro = useText("home.hero.intro");
+  const { content } = useSite();
+  const features: Feature[] = featureLayout.map((layout, i) => ({
+    ...layout,
+    eyebrow: String(content[`home.feature${i + 1}.eyebrow`] ?? ""),
+    title: String(content[`home.feature${i + 1}.title`] ?? ""),
+    copy: String(content[`home.feature${i + 1}.copy`] ?? ""),
+  }));
   const loop = [...words, ...words];
   const titleWordRef = useRef<HTMLSpanElement>(null);
   const copyRef = useRef<HTMLParagraphElement>(null);
@@ -464,8 +464,7 @@ export function Story() {
 
         <div className="relative z-20 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <p ref={copyRef} className="fade-up max-w-[42ch] text-lg leading-relaxed text-ink">
-            O projeto UNEDO4ALL tem como principal objetivo estudar e desenvolver novos processos para
-            conservação e valorização do medronho (<Species />).
+            {withSpecies(intro)}
           </p>
           <div ref={ctaRef} className="fade-up flex flex-wrap gap-3">
             <Pill to="/consorcio">Sobre o consórcio</Pill>
