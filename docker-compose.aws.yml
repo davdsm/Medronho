@@ -1,0 +1,63 @@
+# Produção no EC2 (Traefik em ~/container/proxy).
+# Frontoffice público: Vercel (unedo4allmedronho.pt)
+# Backoffice: https://backoffice.unedo4allmedronho.pt
+#
+#   docker compose -f docker-compose.aws.yml up -d --build
+services:
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: medronho-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      TRUST_PROXY: "loopback, linklocal, uniquelocal"
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      SITE_URL: ${SITE_URL:-https://unedo4allmedronho.pt}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://unedo4allmedronho.pt,https://www.unedo4allmedronho.pt,https://medronho.vercel.app,https://backoffice.unedo4allmedronho.pt}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@unedo4allmedronho.pt}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+    volumes:
+      - unedo-data:/data
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/health"]
+      interval: 15s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_SITE_URL: ${SITE_URL:-https://unedo4allmedronho.pt}
+    container_name: medronho-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_URL: http://api:3001
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - default
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  unedo-data:

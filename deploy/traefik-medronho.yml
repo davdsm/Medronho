@@ -1,0 +1,24 @@
+# Copiar para o EC2: ~/container/proxy/dynamic_config/medronho.yml
+http:
+  routers:
+    medronho-backoffice:
+      rule: "Host(`backoffice.unedo4allmedronho.pt`)"
+      entryPoints:
+        - http
+      middlewares:
+        - redirect
+      service: medronho-web
+
+    medronho-backoffice-secure:
+      rule: "Host(`backoffice.unedo4allmedronho.pt`)"
+      entryPoints:
+        - https
+      tls:
+        certresolver: http
+      service: medronho-web
+
+  services:
+    medronho-web:
+      loadBalancer:
+        servers:
+          - url: http://medronho-web:8080

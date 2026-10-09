@@ -1,7 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/((?!robots\\.txt|sitemap\\.xml|llms\\.txt|site\\.webmanifest|og\\.(?:jpg|png)|share\\.jpg|favicon(?:-32)?\\.(?:svg|png)|apple-touch-icon\\.png|icon-\\d+\\.png|icons\\.svg|photos/.*|partners/.*|brand/.*|funding/.*|documentos/.*|assets/.*).*)",
+      "source": "/api/:path*",
+      "destination": "https://backoffice.unedo4allmedronho.pt/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://backoffice.unedo4allmedronho.pt/uploads/:path*"
+    },
+    {
+      "source": "/((?!robots\\.txt|sitemap\\.xml|llms\\.txt|site\\.webmanifest|og\\.(?:jpg|png)|share\\.jpg|favicon(?:-32)?\\.(?:svg|png)|apple-touch-icon\\.png|icon-\\d+\\.png|icons\\.svg|photos/.*|partners/.*|brand/.*|funding/.*|documentos/.*|assets/.*|api/.*|uploads/.*).*)",
       "destination": "/index.html"
     }
   ],
